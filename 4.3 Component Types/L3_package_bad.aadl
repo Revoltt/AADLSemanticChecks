@@ -1,0 +1,8 @@
+package p8
+public
+	thread th1
+	end th1;
+	
+	process p1 extends th1
+	end p1;
+end p8;

@@ -1,0 +1,12 @@
+package p11
+public
+	thread t1
+		modes
+			t: mode;
+	end t1;
+	
+	thread t2 extends t1
+		requires modes
+			t_s: mode;
+	end t2;
+end p11;

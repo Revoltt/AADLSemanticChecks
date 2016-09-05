@@ -1,0 +1,17 @@
+package p17
+public
+	system s1
+		features
+			e: in event port;
+		modes
+			m0: initial mode;
+			m1: mode;
+			t0: m0 -[e]-> m1; -- mode transition?
+	end s1;
+	
+	system implementation s1.i
+		modes
+			m2: mode;
+			t2: m0 -[e]-> m2;
+	end s1.i;
+end p17;

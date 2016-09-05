@@ -1,0 +1,21 @@
+package p21
+public
+	data d end d;
+	thread t1
+		prototypes
+			p1: data;
+	end t1;
+	
+	thread t2 extends t1
+	end t2;
+	
+	thread implementation t1.i
+		prototypes
+			p1: refined to data d;
+	end t1.i;
+	
+	thread implementation t2.i extends t1.i
+		prototypes
+			p1: refined to data d;
+	end t2.i;
+end p21;

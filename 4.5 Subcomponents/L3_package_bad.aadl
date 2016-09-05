@@ -1,0 +1,23 @@
+package p45l3
+public
+	system s
+	end s;
+	
+	system implementation s.j
+		subcomponents
+			x: data;
+			y: abstract;
+	end s.j;
+	
+	data d1
+	end d1;
+	
+	data d2
+	end d2;
+	
+	system implementation s.i extends s.j
+		subcomponents
+			x: refined to thread d1;
+			y: refined to data d2;
+	end s.i;
+end p45l3;

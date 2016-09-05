@@ -1,0 +1,26 @@
+package p22
+public
+	system s1
+	end s1;
+	
+	system implementation s1.i
+		subcomponents
+			s:system s2.i;
+	end s1.i;
+	
+	system s2
+	end s2;
+	
+	system implementation s2.i
+		subcomponents
+			s: system s3.i;
+	end s2.i;
+	
+	system s3
+	end s3;
+	
+	system implementation s3.i
+		subcomponents
+			s: system s1.i;
+	end s3.i;
+end p22;
