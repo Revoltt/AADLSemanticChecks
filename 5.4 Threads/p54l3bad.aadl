@@ -1,0 +1,8 @@
+package p54l3bad
+public
+	thread t
+		features
+			Complete: in event data port;
+			Error: in event data port;
+	end t;
+end p54l3bad;

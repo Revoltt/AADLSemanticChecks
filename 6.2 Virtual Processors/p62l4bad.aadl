@@ -1,0 +1,11 @@
+package p62l4bad
+public
+	subprogram p
+	end p;
+	
+	virtual processor t
+		calls main: {
+			x: subprogram p;	
+		};
+	end t;
+end p62l4bad;

@@ -1,0 +1,47 @@
+package p52l3
+public
+	data date	
+	end date;
+	
+	data time
+	end time;
+	
+	data forecast
+	end forecast;
+	
+	subprogram weather1
+		features
+			date: in parameter date;
+			time: in parameter time;
+			result: out parameter forecast;
+	end weather1;
+	
+	subprogram weather2
+		features
+			date: in parameter date;
+			time: in parameter time;
+			result: out parameter forecast;
+	end weather2;
+	
+	thread t
+		features
+			target_date: in event data port date;
+			target_time: in event data port time;
+			prediction: out event data port forecast;
+		modes
+			normal: initial mode;
+			rough: mode;
+	end t;
+	
+	thread implementation t.i
+		calls main1: {
+			weather: subprogram weather1;
+		} in modes (normal);
+	end t.i;
+	
+	thread implementation t.j
+		calls main2: {
+			weather: subprogram weather2;
+		} in modes (normal, rough);
+	end t.j;
+end p52l3;

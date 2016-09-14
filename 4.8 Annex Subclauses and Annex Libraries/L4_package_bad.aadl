@@ -1,0 +1,18 @@
+package p48l4
+public
+	thread Collect_Samples
+		features
+			Input_Sample : in data port;
+			Output_Average : out data port;
+	end Collect_Samples;
+	
+	annex Error_Model {**
+			Model1 => Transient_Fault_Model;
+			Occurrence => poisson 10e-4 applies to Transient_Fault;
+		**};
+	
+	annex Error_Model {**
+			Model2 => Transient_Fault_Model;
+			Occurrence => poisson 10e-4 applies to Transient_Fault;
+		**};
+end p48l4;

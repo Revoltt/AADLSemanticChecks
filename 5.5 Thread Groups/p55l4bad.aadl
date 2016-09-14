@@ -1,0 +1,12 @@
+package p55l4bad
+public
+	subprogram p
+	end p;
+	
+	
+	thread group t
+		calls main: {
+			x: subprogram p;	
+		};
+	end t;
+end p55l4bad;

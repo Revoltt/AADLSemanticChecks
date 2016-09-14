@@ -1,0 +1,19 @@
+package p47l1
+public
+	process t
+		prototypes
+			p1: data;
+			p2: abstract;
+	end t;
+	
+	thread t1
+	end t1;
+	
+	system s
+	end s;
+	
+	system implementation s.i
+		subcomponents
+			sys: process t(p1 => thread t1, p2 => thread t1);
+	end s.i;
+end p47l1;

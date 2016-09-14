@@ -1,0 +1,11 @@
+package p56l4bad
+public
+	subprogram p
+	end p;
+	
+	process t
+		calls main: {
+			x: subprogram p;	
+		};
+	end t;
+end p56l4bad;
