@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<problems>
+	<problem id="P41N1" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>Identifiers in specification namespace must be unique.</text>
+		<description>4.1 (N1) An AADL specification has one global namespace. The package and property set identifiers reside in this space and must be unique.</description>
+	</problem>
+	
+	<problem id="P42N1" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>A defining package name must be unique in the global namespace.</text>
+		<description>4.2 (N1) A defining package name consists of a sequence of one or more package identifiers separated by a double colon (“::”). A defining package name must be unique in the global namespace.</description>
+	</problem>
+	
+	<problem id="P42N7" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>The package name in a import_declaration must exist in the global name space.</text>
+		<description>4.2 (N7) The package name in a import_declaration must exist in the global name space.</description>
+	</problem>
+	
+	<problem id="P42N11g" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>The package name referenced in an alias_declaration must exist in the global namespace.</text>
+		<description>4.2 (N11) The package name referenced in an alias_declaration must exist in the global namespace and must be listed in the import_declaration.</description>
+	</problem>
+	
+	<problem id="P42N11i" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>The package name referenced in an alias_declaration must be listed in the import_declaration.</text>
+		<description>4.2 (N11) The package name referenced in an alias_declaration must exist in the global namespace and must be listed in the import_declaration.</description>
+	</problem>
+	
+	<problem id="P42N12" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>Classifier referenced if not found in public package section.</text>
+		<description>4.2 (N12) The classifier referenced by the alias_declaration must exist in the name space of the public section of the package being referenced by the alias_declaration.</description>
+	</problem>
+	
+	<problem id="P42N12o" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>Wrong reference structure, no package is referenced</text>
+		<description>4.2 (N12) The classifier referenced by the alias_declaration must exist in the name space of the public section of the package being referenced by the alias_declaration.</description>
+	</problem>
+	
+	<problem id="P42L4" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>The component category does not match the category of referenced component type.</text>
+		<description>4.2 (L4) The component category in an alias declaration must match the category of the referenced component type.</description>
+	</problem>
+	
+	<problem id="P42N14p" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>Conflict of alias name of the package with imported package.</text>
+		<description>4.2 (L4) The defining identifier of an alias_declaration must be unique in the namespace of the package containing the alias_declaration. If an alias_declaration defines an alias for a package then the alias name must not conflict with any package name listed in an import_declaration or that of the package containing the alias_declaration.</description>
+	</problem>
+	
+	<problem id="P42N14d" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>Conflict of alias name of the package with package name where it is defined.</text>
+		<description>4.2 (L4) The defining identifier of an alias_declaration must be unique in the namespace of the package containing the alias_declaration. If an alias_declaration defines an alias for a package then the alias name must not conflict with any package name listed in an import_declaration or that of the package containing the alias_declaration.</description>
+	</problem>
+	
+	<problem id="P42N14o" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>The defining identifier of an alias_declaration is not unique in package namespace.</text>
+		<description>4.2 (L4) The defining identifier of an alias_declaration must be unique in the namespace of the package containing the alias_declaration. If an alias_declaration defines an alias for a package then the alias name must not conflict with any package name listed in an import_declaration or that of the package containing the alias_declaration.</description>
+	</problem>
+	
+	<problem id="P51L1" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>A data type declaration contains not allowed features.</text>
+		<description>5.1 (L1) A data type declaration can contain provides subprogram access declarations as well as property associations.</description>
+	</problem>
+	
+	<problem id="P51L2m" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>A data type declaration must not contain modes subclause.</text>
+		<description>5.1 (L2) A data type declaration must not contain a flow specification or modes subclause.</description>
+	</problem>
+	
+	<problem id="P51L2f" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>A data type declaration must not contain flow specification.</text>
+		<description>5.1 (L2) A data type declaration must not contain a flow specification or modes subclause.</description>
+	</problem>
+	
+</problems>
