@@ -55,6 +55,11 @@
 		<description>4.2 (L4) The defining identifier of an alias_declaration must be unique in the namespace of the package containing the alias_declaration. If an alias_declaration defines an alias for a package then the alias name must not conflict with any package name listed in an import_declaration or that of the package containing the alias_declaration.</description>
 	</problem>
 	
+	<problem id="P43N1" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>The defining identifier for a component type id not unique in the namespace of the package.</text>
+		<description>4.3 (N1) The defining identifier for a component type must be unique in the namespace of the package within which it is declared.</description>
+	</problem>
+	
 	<problem id="P51L1" category="ru.ispras.masiw.plugin.aadl.problem">
 		<text>A data type declaration contains not allowed features.</text>
 		<description>5.1 (L1) A data type declaration can contain provides subprogram access declarations as well as property associations.</description>

@@ -11,6 +11,7 @@ import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;
 
 import ru.ispras.antlr.v4.editing.core.runtime.CommonProblem;
+import ru.ispras.antlr.v4.editing.core.runtime.IExtendedEObject;
 import ru.ispras.masiw.plugin.aadl.ProblemHelper;
 import ru.ispras.masiw.plugin.aadl.metamodel.Feature;
 import ru.ispras.masiw.plugin.aadl.metamodel.Flow;
@@ -20,6 +21,7 @@ import ru.ispras.masiw.plugin.aadl.metamodel.extra.ClassifierAlias;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.PackageAlias;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.PropertyAssociation;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.impl.PropertySetImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.ComponentTypeImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.DataTypeImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.PackageImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.ProvidesSubprogramAccessImpl;
@@ -35,6 +37,25 @@ public class Check {
 	public static Map<AADLIdentifier, Set<AADLIdentifier>> localPublicNamespaces;
 	public static Map<AADLIdentifier, Set<AADLIdentifier>> localPrivateNamespaces;
 	
+	// function to check if category type and referenced component type of alias_declaration match each other
+	private static boolean typeMatch(String categoryType, String classifierType) {
+		if (classifierType.startsWith(categoryType)) {
+			return true;
+		}
+		return false;
+	}
+		
+	//function for raising problems
+	private static void raiseCommonProblem(String id, IExtendedEObject x) {
+		try {
+			CommonProblem problem = helper.createProblem(id);
+			x.getProblems().add(problem);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+			
 	public static void declarativeChecksDummy(ProblemHelper h, AADLSpecificationDomain model) {
 		TreeIterator<EObject> x = model.getAADLPackagesResource().getAllContents();
 		ArrayList<EObject> l = new ArrayList<EObject>();
@@ -54,23 +75,42 @@ public class Check {
 				PackageImpl curPackage = (PackageImpl) l.get(i);
 				
 				if (globalPackageNamespace.contains(curPackage.getIdentifier())) {
-					try {
-						CommonProblem problem = helper.createProblem("P41N1");
-						curPackage.getProblems().add(problem);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					// duplicate package name
+					raiseCommonProblem("P41N1", curPackage);
 				} else {
 					globalPackageNamespace.add(curPackage.getIdentifier());
 					localPublicNamespaces.put(curPackage.getIdentifier(), new HashSet<AADLIdentifier>());
 					if (curPackage.getPublicSection() != null) {
-						localPublicNamespaces.get(curPackage.getIdentifier()).addAll(curPackage.getPublicSection().getDeclarationsMap().keySet());
+						EList<AADLDeclaration> declarations = curPackage.getPublicSection().getDeclarations();
+						for (int j = 0; j < declarations.size(); j++) {
+							if (!localPublicNamespaces.get(curPackage.getIdentifier()).contains(declarations.get(j).getIdentifier())) {
+								localPublicNamespaces.get(curPackage.getIdentifier()).add(declarations.get(j).getIdentifier());
+							} else {
+								// duplicate identifier error
+								if (ComponentTypeImpl.class.isAssignableFrom(declarations.get(j).getClass())) {
+									// duplicate component type
+									raiseCommonProblem("P43N1", declarations.get(j));
+								}
+							}
+						}
+						//localPublicNamespaces.get(curPackage.getIdentifier()).addAll(curPackage.getPublicSection().getDeclarationsMap().keySet());
 					}
 					
 					localPrivateNamespaces.put(curPackage.getIdentifier(), new HashSet<AADLIdentifier>());
 					if (curPackage.getPrivateSection() != null) {
-						localPrivateNamespaces.get(curPackage.getIdentifier()).addAll(curPackage.getPrivateSection().getDeclarationsMap().keySet());
+						EList<AADLDeclaration> declarations = curPackage.getPrivateSection().getDeclarations();
+						for (int j = 0; j < declarations.size(); j++) {
+							if (!localPrivateNamespaces.get(curPackage.getIdentifier()).contains(declarations.get(j).getIdentifier())) {
+								localPrivateNamespaces.get(curPackage.getIdentifier()).add(declarations.get(j).getIdentifier());
+							} else {
+								// duplicate identifier error
+								if (ComponentTypeImpl.class.isAssignableFrom(declarations.get(j).getClass())) {
+									// duplicate component type
+									raiseCommonProblem("P43N1", declarations.get(j));
+								}
+							}
+						}
+						//localPrivateNamespaces.get(curPackage.getIdentifier()).addAll(curPackage.getPrivateSection().getDeclarationsMap().keySet());
 					}
 				}
 			} else if ((l.get(i)).getClass().equals(PropertySetImpl.class)) {
@@ -78,13 +118,7 @@ public class Check {
 				PropertySetImpl curPrSet = (PropertySetImpl) l.get(i);
 				
 				if (globalPrSetNamespace.contains(curPrSet.getIdentifier())) {
-					try {
-						CommonProblem problem = helper.createProblem("P41N1");
-						curPrSet.getProblems().add(problem);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					raiseCommonProblem("P41N1", curPrSet);
 				} else {
 					globalPrSetNamespace.add(curPrSet.getIdentifier());
 				}
@@ -106,15 +140,7 @@ public class Check {
 		}
 	}
 	
-	// function to check if category type and referenced component type of alias_declaration match each other
-	public static boolean typeMatch(String categoryType, String classifierType) {
-		if (classifierType.startsWith(categoryType)) {
-			return true;
-		}
-		return false;
-	}
-	
-	public static void DFS(EObject p) {
+	private static void DFS(EObject p) {
 		if (p.getClass().equals(PackageImpl.class)) {
 			// for Package declarations
 			
@@ -132,13 +158,7 @@ public class Check {
 			
 			// only one public and one private package declaration is allowed
 			if ((publicDeclarations > 1) || (privateDeclarations > 1)) {
-				try {
-					CommonProblem problem = helper.createProblem("P42N1");
-					curPackage.getPackageDeclarations().get(0).getProblems().add(problem);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				raiseCommonProblem("P42N1", curPackage.getPackageDeclarations().get(0));
 			} else {
 				// public section
 				if (curPackage.getPublicSection() != null) {
@@ -150,13 +170,7 @@ public class Check {
 					for (int i = 0; i < imports.size(); i++) {
 						importsSet.add(imports.get(i));
 						if (!globalPackageNamespace.contains(imports.get(i)) && !globalPrSetNamespace.contains(imports.get(i))) {
-							try {
-								CommonProblem problem = helper.createProblem("P42N7");
-								curPackage.getPublicSection().getProblems().add(problem);
-							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
+							raiseCommonProblem("P42N7", curPackage.getPublicSection());
 						}
 					}
 					
@@ -172,43 +186,19 @@ public class Check {
 							// package is referenced
 							if (!globalPackageNamespace.contains(new AADLIdentifier(reference))) {
 								// package name referenced is not found in global namespace
-								try {
-									CommonProblem problem = helper.createProblem("P42N11g");
-									packageAliases.get(i).getProblems().add(problem);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
+								raiseCommonProblem("P42N11g", packageAliases.get(i));
 							} else if (!importsSet.contains(new AADLIdentifier(reference))) {
 								// package referenced is not imported
-								try {
-									CommonProblem problem = helper.createProblem("P42N11i");
-									packageAliases.get(i).getProblems().add(problem);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
+								raiseCommonProblem("P42N11i", packageAliases.get(i));
 							}
 						} else {
 							if (importsSet.contains(packageAliases.get(i).getIdentifier())) {
 								// alias conflicts with imported package names
-								try {
-									CommonProblem problem = helper.createProblem("P42N14p");
-									packageAliases.get(i).getProblems().add(problem);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
+								raiseCommonProblem("P42N14p", packageAliases.get(i));
 							}
 							if (curPackage.getIdentifier().equals(packageAliases.get(i).getIdentifier())) {
 								// alias conflicts with package name where it is defined
-								try {
-									CommonProblem problem = helper.createProblem("P42N14d");
-									packageAliases.get(i).getProblems().add(problem);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
+								raiseCommonProblem("P42N14d", packageAliases.get(i));
 							}
 						}
 					}
@@ -219,71 +209,35 @@ public class Check {
 							String reference = classifierAliases.get(i).getClassifier().eProxyURI().fragment();
 							// classifier of feature group type is referenced
 							if (!reference.contains("::")) {
-								try {
-									CommonProblem problem = helper.createProblem("P42N12o");
-									classifierAliases.get(i).getProblems().add(problem);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
+								raiseCommonProblem("P42N12o", classifierAliases.get(i));
 							} else {
 								String packageName = reference.substring(0, reference.lastIndexOf("::"));
 								String identifier = reference.substring(reference.lastIndexOf("::") + 2);
 								//System.out.println(packageName + " " + identifier);
 								if (!globalPackageNamespace.contains(new AADLIdentifier(packageName))) {
 									// package name referenced is not found in global namespace
-									try {
-										CommonProblem problem = helper.createProblem("P42N11g");
-										classifierAliases.get(i).getProblems().add(problem);
-									} catch (Exception e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
+									raiseCommonProblem("P42N11g", classifierAliases.get(i));
 								} else if (!importsSet.contains(new AADLIdentifier(packageName))) {
 									// package referenced is not imported
-									try {
-										CommonProblem problem = helper.createProblem("P42N11i");
-										classifierAliases.get(i).getProblems().add(problem);
-									} catch (Exception e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
+									raiseCommonProblem("P42N11i", classifierAliases.get(i));
 								} else if (!localPublicNamespaces.get(new AADLIdentifier(packageName))
 										.contains(new AADLIdentifier(identifier))) {
 									// classifier referenced is not found in package
-									try {
-										CommonProblem problem = helper.createProblem("P42N12");
-										classifierAliases.get(i).getProblems().add(problem);
-									} catch (Exception e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
+									raiseCommonProblem("P42N12", classifierAliases.get(i));
 								}
 							}
 						} else {
 							// check that alias name is not used in package local namespace
 							if (localPublicNamespaces.get(curPackage.getIdentifier()).contains(classifierAliases.get(i).getIdentifier())) {
 								// alias identifier is not unique by some other way
-								try {
-									CommonProblem problem = helper.createProblem("P42N14o");
-									classifierAliases.get(i).getProblems().add(problem);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
+								raiseCommonProblem("P42N14o", classifierAliases.get(i));
 							}
 							// add identifier of alias
 							localPublicNamespaces.get(curPackage.getIdentifier()).add(classifierAliases.get(i).getIdentifier());
 							
 							if (!typeMatch(classifierAliases.get(i).getCategory().getName(), classifierAliases.get(i).getClassifier().getClass().getSimpleName())) {
 								// types do not match
-								try {
-									CommonProblem problem = helper.createProblem("P42L4");
-									classifierAliases.get(i).getProblems().add(problem);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
+								raiseCommonProblem("P42L4", classifierAliases.get(i));
 							}
 						}
 					}
@@ -301,15 +255,12 @@ public class Check {
 					EList<AADLIdentifier> imports = curPackage.getPrivateSection().getImports();
 					for (int i = 0; i < imports.size(); i++) {
 						if (!globalPackageNamespace.contains(imports.get(i)) && !globalPrSetNamespace.contains(imports.get(i))) {
-							try {
-								CommonProblem problem = helper.createProblem("P42N7");
-								curPackage.getPrivateSection().getProblems().add(problem);
-							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
+							raiseCommonProblem("P42N7", curPackage.getPrivateSection());
 						}
 					}
+					
+					//TODO alias checking not implemented
+					
 					// go through all component declarations
 					EList<AADLDeclaration> privateDeclararionsList = curPackage.getPrivateSection().getDeclarations();
 					for (int i = 0; i < privateDeclararionsList.size(); i++) {
@@ -317,60 +268,39 @@ public class Check {
 					}
 				}
 			}
-		} else if (p.getClass().equals(DataTypeImpl.class)) {
-			
-			////p.getClass().isAssignableFrom(arg0) - for checking hierarchy
-			
-			// for Data type components
-			DataTypeImpl dataImpl = ((DataTypeImpl) p);
-			// go trough all properties
-			EList<PropertyAssociation> properties = dataImpl.getProperties();
-			for (int i = 0; i < properties.size(); i++) {
-				DFS((EObject) properties.get(i));
-			}
-			
-			// features: provides subprogram access allowed, others supposed not
-			EList<Feature> features = dataImpl.getFeatures();
-			for (int i = 0; i < features.size(); i++) {
-				if (!features.get(i).getClass().equals(ProvidesSubprogramAccessImpl.class)) {
-					try {
-						CommonProblem problem = helper.createProblem("P51L1");
-						features.get(i).getProblems().add(problem);
-						System.out.println("Incorrect feature");
-					} catch (Exception e) {
-						//TODO Does getProblems().add(problem) try to write in restricted space?
-						e.printStackTrace();
+		} else if (ComponentTypeImpl.class.isAssignableFrom(p.getClass())) {
+			if (p.getClass().equals(DataTypeImpl.class)) {
+				// for Data type components
+				DataTypeImpl dataImpl = ((DataTypeImpl) p);
+				// go trough all properties
+				EList<PropertyAssociation> properties = dataImpl.getProperties();
+				for (int i = 0; i < properties.size(); i++) {
+					DFS((EObject) properties.get(i));
+				}
+				
+				// features: provides subprogram access allowed, others supposed not
+				EList<Feature> features = dataImpl.getFeatures();
+				for (int i = 0; i < features.size(); i++) {
+					if (!features.get(i).getClass().equals(ProvidesSubprogramAccessImpl.class)) {
+						raiseCommonProblem("P51L1", features.get(i));
 					}
+					DFS((EObject) features.get(i));
 				}
-				DFS((EObject) features.get(i));
-			}
-			
-			// modes are not allowed
-			EList<Mode> modes = dataImpl.getModes();
-			if (modes.size() != 0) {
-				try {
-					CommonProblem problem = helper.createProblem("P51L2m");
-					modes.get(0).getProblems().add(problem);
-				} catch (Exception e) {
-					//TODO Does getProblems().add(problem) try to write in restricted space?
-					e.printStackTrace();
+				
+				// modes are not allowed
+				EList<Mode> modes = dataImpl.getModes();
+				if (modes.size() != 0) {
+					raiseCommonProblem("P51L2m", modes.get(0));
 				}
-			}
-			
-			// flows are not allowed
-			// TODO are end-to-end flows possible?
-			EList<Flow> flows = dataImpl.getFlows();
-			if (flows.size() != 0) {
-				try {
-					CommonProblem problem = helper.createProblem("P51L2f");
-					flows.get(0).getProblems().add(problem);
-				} catch (Exception e) {
-					//TODO Does getProblems().add(problem) try to write in restricted space?
-					e.printStackTrace();
+				
+				// flows are not allowed
+				// TODO are end-to-end flows possible?
+				EList<Flow> flows = dataImpl.getFlows();
+				if (flows.size() != 0) {
+					raiseCommonProblem("P51L2f", flows.get(0));
 				}
 			}
-			
+			// TODO: if branches for different components, for different component containments
 		}
-		// TODO: if branches for different components, for different component containments
 	}
 }
