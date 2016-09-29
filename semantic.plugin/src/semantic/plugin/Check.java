@@ -16,15 +16,28 @@ import ru.ispras.masiw.plugin.aadl.ProblemHelper;
 import ru.ispras.masiw.plugin.aadl.metamodel.Feature;
 import ru.ispras.masiw.plugin.aadl.metamodel.Flow;
 import ru.ispras.masiw.plugin.aadl.metamodel.Mode;
+import ru.ispras.masiw.plugin.aadl.metamodel.NamedElement;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.AADLDeclaration;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.ClassifierAlias;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.PackageAlias;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.PropertyAssociation;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.impl.PropertySetImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.AbstractTypeImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.BusTypeImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.ComponentTypeImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.DataTypeImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.DeviceTypeImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.MemoryTypeImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.PackageImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.ProcessTypeImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.ProcessorTypeImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.ProvidesSubprogramAccessImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.SubprogramGroupTypeImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.SubprogramTypeImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.ThreadGroupTypeImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.ThreadTypeImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.VirtualBusTypeImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.VirtualProcessorTypeImpl;
 import ru.ispras.masiw.plugin.aadl.model.AADLIdentifier;
 import ru.ispras.masiw.plugin.aadl.model.domain.AADLSpecificationDomain;
 
@@ -269,17 +282,34 @@ public class Check {
 				}
 			}
 		} else if (ComponentTypeImpl.class.isAssignableFrom(p.getClass())) {
+			//TODO general component type checks (p43) Are there any??
 			if (p.getClass().equals(DataTypeImpl.class)) {
 				// for Data type components
-				DataTypeImpl dataImpl = ((DataTypeImpl) p);
+				DataTypeImpl componentTypeImpl = ((DataTypeImpl) p);
+				
+				if (componentTypeImpl.getAncestor() != null) {
+					// component which is extended should exist
+					// TODO check if referenced package is in import declaration
+					NamedElement ancestor = componentTypeImpl.getAncestor().getPrototypeOrClassifier();
+					if (ancestor.eIsProxy()) {
+						// the ancestor is not found in namespace - there is proxy instead
+						raiseCommonProblem("P43N3", componentTypeImpl.getAncestor());
+					} else if (!(ancestor.getClass().equals(DataTypeImpl.class)
+							|| ancestor.getClass().equals(AbstractTypeImpl.class))) {
+						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
+					} else if ((((DataTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+							(((DataTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
+						raiseCommonProblem("P43L6", componentTypeImpl);
+					}
+				}
 				// go trough all properties
-				EList<PropertyAssociation> properties = dataImpl.getProperties();
+				EList<PropertyAssociation> properties = componentTypeImpl.getProperties();
 				for (int i = 0; i < properties.size(); i++) {
 					DFS((EObject) properties.get(i));
 				}
 				
 				// features: provides subprogram access allowed, others supposed not
-				EList<Feature> features = dataImpl.getFeatures();
+				EList<Feature> features = componentTypeImpl.getFeatures();
 				for (int i = 0; i < features.size(); i++) {
 					if (!features.get(i).getClass().equals(ProvidesSubprogramAccessImpl.class)) {
 						raiseCommonProblem("P51L1", features.get(i));
@@ -288,16 +318,214 @@ public class Check {
 				}
 				
 				// modes are not allowed
-				EList<Mode> modes = dataImpl.getModes();
+				EList<Mode> modes = componentTypeImpl.getModes();
 				if (modes.size() != 0) {
 					raiseCommonProblem("P51L2m", modes.get(0));
 				}
 				
 				// flows are not allowed
 				// TODO are end-to-end flows possible?
-				EList<Flow> flows = dataImpl.getFlows();
+				EList<Flow> flows = componentTypeImpl.getFlows();
 				if (flows.size() != 0) {
 					raiseCommonProblem("P51L2f", flows.get(0));
+				}
+			} else if (p.getClass().equals(SubprogramTypeImpl.class)) {
+				SubprogramTypeImpl componentTypeImpl = ((SubprogramTypeImpl) p);
+				
+				if (componentTypeImpl.getAncestor() != null) {
+					// component which is extended should exist
+					// TODO check if referenced package is in import declaration
+					NamedElement ancestor = componentTypeImpl.getAncestor().getPrototypeOrClassifier();
+					if (componentTypeImpl.getAncestor().getPrototypeOrClassifier().eIsProxy()) {
+						// the ancestor is not found in namespace - there is proxy instead
+						raiseCommonProblem("P43N3", componentTypeImpl.getAncestor());
+					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(SubprogramTypeImpl.class)
+							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
+						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
+					} else if ((((SubprogramTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+							(((SubprogramTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
+						raiseCommonProblem("P43L6", componentTypeImpl);
+					}
+				}
+			} else if (p.getClass().equals(SubprogramGroupTypeImpl.class)) {
+				SubprogramGroupTypeImpl componentTypeImpl = ((SubprogramGroupTypeImpl) p);
+				
+				if (componentTypeImpl.getAncestor() != null) {
+					// component which is extended should exist
+					// TODO check if referenced package is in import declaration
+					NamedElement ancestor = componentTypeImpl.getAncestor().getPrototypeOrClassifier();
+					if (componentTypeImpl.getAncestor().getPrototypeOrClassifier().eIsProxy()) {
+						// the ancestor is not found in namespace - there is proxy instead
+						raiseCommonProblem("P43N3", componentTypeImpl.getAncestor());
+					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(SubprogramGroupTypeImpl.class)
+							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
+						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
+					} else if ((((SubprogramGroupTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+							(((SubprogramGroupTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
+						raiseCommonProblem("P43L6", componentTypeImpl);
+					}
+				}
+			} else if (p.getClass().equals(ThreadTypeImpl.class)) {
+				ThreadTypeImpl componentTypeImpl = ((ThreadTypeImpl) p);
+				
+				if (componentTypeImpl.getAncestor() != null) {
+					// component which is extended should exist
+					// TODO check if referenced package is in import declaration
+					NamedElement ancestor = componentTypeImpl.getAncestor().getPrototypeOrClassifier();
+					if (componentTypeImpl.getAncestor().getPrototypeOrClassifier().eIsProxy()) {
+						// the ancestor is not found in namespace - there is proxy instead
+						raiseCommonProblem("P43N3", componentTypeImpl.getAncestor());
+					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(ThreadTypeImpl.class)
+							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
+						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
+					} else if ((((ThreadTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+							(((ThreadTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
+						raiseCommonProblem("P43L6", componentTypeImpl);
+					}
+				}
+			} else if (p.getClass().equals(ThreadGroupTypeImpl.class)) {
+				ThreadGroupTypeImpl componentTypeImpl = ((ThreadGroupTypeImpl) p);
+				
+				if (componentTypeImpl.getAncestor() != null) {
+					// component which is extended should exist
+					// TODO check if referenced package is in import declaration
+					NamedElement ancestor = componentTypeImpl.getAncestor().getPrototypeOrClassifier();
+					if (componentTypeImpl.getAncestor().getPrototypeOrClassifier().eIsProxy()) {
+						// the ancestor is not found in namespace - there is proxy instead
+						raiseCommonProblem("P43N3", componentTypeImpl.getAncestor());
+					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(ThreadGroupTypeImpl.class)
+							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
+						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
+					} else if ((((ThreadGroupTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+							(((ThreadGroupTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
+						raiseCommonProblem("P43L6", componentTypeImpl);
+					}
+				}
+			} else if (p.getClass().equals(ProcessTypeImpl.class)) {
+				ProcessTypeImpl componentTypeImpl = ((ProcessTypeImpl) p);
+				
+				if (componentTypeImpl.getAncestor() != null) {
+					// component which is extended should exist
+					// TODO check if referenced package is in import declaration
+					NamedElement ancestor = componentTypeImpl.getAncestor().getPrototypeOrClassifier();
+					if (componentTypeImpl.getAncestor().getPrototypeOrClassifier().eIsProxy()) {
+						// the ancestor is not found in namespace - there is proxy instead
+						raiseCommonProblem("P43N3", componentTypeImpl.getAncestor());
+					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(ProcessTypeImpl.class)
+							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
+						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
+					} else if ((((ProcessTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+							(((ProcessTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
+						raiseCommonProblem("P43L6", componentTypeImpl);
+					}
+				}
+			} else if (p.getClass().equals(MemoryTypeImpl.class)) {
+				MemoryTypeImpl componentTypeImpl = ((MemoryTypeImpl) p);
+				
+				if (componentTypeImpl.getAncestor() != null) {
+					// component which is extended should exist
+					// TODO check if referenced package is in import declaration
+					NamedElement ancestor = componentTypeImpl.getAncestor().getPrototypeOrClassifier();
+					if (componentTypeImpl.getAncestor().getPrototypeOrClassifier().eIsProxy()) {
+						// the ancestor is not found in namespace - there is proxy instead
+						raiseCommonProblem("P43N3", componentTypeImpl.getAncestor());
+					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(MemoryTypeImpl.class)
+							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
+						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
+					} else if ((((MemoryTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+							(((MemoryTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
+						raiseCommonProblem("P43L6", componentTypeImpl);
+					}
+				}
+			} else if (p.getClass().equals(ProcessorTypeImpl.class)) {
+				ProcessorTypeImpl componentTypeImpl = ((ProcessorTypeImpl) p);
+				
+				if (componentTypeImpl.getAncestor() != null) {
+					// component which is extended should exist
+					// TODO check if referenced package is in import declaration
+					NamedElement ancestor = componentTypeImpl.getAncestor().getPrototypeOrClassifier();
+					if (componentTypeImpl.getAncestor().getPrototypeOrClassifier().eIsProxy()) {
+						// the ancestor is not found in namespace - there is proxy instead
+						raiseCommonProblem("P43N3", componentTypeImpl.getAncestor());
+					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(ProcessorTypeImpl.class)
+							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
+						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
+					} else if ((((ProcessorTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+							(((ProcessorTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
+						raiseCommonProblem("P43L6", componentTypeImpl);
+					}
+				}
+			} else if (p.getClass().equals(BusTypeImpl.class)) {
+				BusTypeImpl componentTypeImpl = ((BusTypeImpl) p);
+				
+				if (componentTypeImpl.getAncestor() != null) {
+					// component which is extended should exist
+					// TODO check if referenced package is in import declaration
+					NamedElement ancestor = componentTypeImpl.getAncestor().getPrototypeOrClassifier();
+					if (componentTypeImpl.getAncestor().getPrototypeOrClassifier().eIsProxy()) {
+						// the ancestor is not found in namespace - there is proxy instead
+						raiseCommonProblem("P43N3", componentTypeImpl.getAncestor());
+					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(BusTypeImpl.class)
+							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
+						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
+					} else if ((((BusTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+							(((BusTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
+						raiseCommonProblem("P43L6", componentTypeImpl);
+					}
+				}
+			} else if (p.getClass().equals(DeviceTypeImpl.class)) {
+				DeviceTypeImpl componentTypeImpl = ((DeviceTypeImpl) p);
+				
+				if (componentTypeImpl.getAncestor() != null) {
+					// component which is extended should exist
+					// TODO check if referenced package is in import declaration
+					NamedElement ancestor = componentTypeImpl.getAncestor().getPrototypeOrClassifier();
+					if (componentTypeImpl.getAncestor().getPrototypeOrClassifier().eIsProxy()) {
+						// the ancestor is not found in namespace - there is proxy instead
+						raiseCommonProblem("P43N3", componentTypeImpl.getAncestor());
+					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(DeviceTypeImpl.class)
+							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
+						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
+					} else if ((((DeviceTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+							(((DeviceTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
+						raiseCommonProblem("P43L6", componentTypeImpl);
+					}
+				}
+			} else if (p.getClass().equals(VirtualProcessorTypeImpl.class)) {
+				VirtualProcessorTypeImpl componentTypeImpl = ((VirtualProcessorTypeImpl) p);
+				
+				if (componentTypeImpl.getAncestor() != null) {
+					// component which is extended should exist
+					// TODO check if referenced package is in import declaration
+					NamedElement ancestor = componentTypeImpl.getAncestor().getPrototypeOrClassifier();
+					if (componentTypeImpl.getAncestor().getPrototypeOrClassifier().eIsProxy()) {
+						// the ancestor is not found in namespace - there is proxy instead
+						raiseCommonProblem("P43N3", componentTypeImpl.getAncestor());
+					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(VirtualProcessorTypeImpl.class)
+							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
+						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
+					} else if ((((VirtualProcessorTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+							(((VirtualProcessorTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
+						raiseCommonProblem("P43L6", componentTypeImpl);
+					}
+				}
+			} else if (p.getClass().equals(VirtualBusTypeImpl.class)) {
+				VirtualBusTypeImpl componentTypeImpl = ((VirtualBusTypeImpl) p);
+				
+				if (componentTypeImpl.getAncestor() != null) {
+					// component which is extended should exist
+					// TODO check if referenced package is in import declaration
+					NamedElement ancestor = componentTypeImpl.getAncestor().getPrototypeOrClassifier();
+					if (componentTypeImpl.getAncestor().getPrototypeOrClassifier().eIsProxy()) {
+						// the ancestor is not found in namespace - there is proxy instead
+						raiseCommonProblem("P43N3", componentTypeImpl.getAncestor());
+					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(VirtualBusTypeImpl.class)
+							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
+						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
+					} else if ((((VirtualBusTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+							(((VirtualBusTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
+						raiseCommonProblem("P43L6", componentTypeImpl);
+					}
 				}
 			}
 			// TODO: if branches for different components, for different component containments

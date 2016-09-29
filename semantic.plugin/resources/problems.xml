@@ -35,11 +35,6 @@
 		<description>4.2 (N12) The classifier referenced by the alias_declaration must exist in the name space of the public section of the package being referenced by the alias_declaration.</description>
 	</problem>
 	
-	<problem id="P42L4" category="ru.ispras.masiw.plugin.aadl.problem">
-		<text>The component category does not match the category of referenced component type.</text>
-		<description>4.2 (L4) The component category in an alias declaration must match the category of the referenced component type.</description>
-	</problem>
-	
 	<problem id="P42N14p" category="ru.ispras.masiw.plugin.aadl.problem">
 		<text>Conflict of alias name of the package with imported package.</text>
 		<description>4.2 (L4) The defining identifier of an alias_declaration must be unique in the namespace of the package containing the alias_declaration. If an alias_declaration defines an alias for a package then the alias name must not conflict with any package name listed in an import_declaration or that of the package containing the alias_declaration.</description>
@@ -55,9 +50,29 @@
 		<description>4.2 (L4) The defining identifier of an alias_declaration must be unique in the namespace of the package containing the alias_declaration. If an alias_declaration defines an alias for a package then the alias name must not conflict with any package name listed in an import_declaration or that of the package containing the alias_declaration.</description>
 	</problem>
 	
+	<problem id="P42L4" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>The component category does not match the category of referenced component type.</text>
+		<description>4.2 (L4) The component category in an alias declaration must match the category of the referenced component type.</description>
+	</problem>
+	
 	<problem id="P43N1" category="ru.ispras.masiw.plugin.aadl.problem">
 		<text>The defining identifier for a component type id not unique in the namespace of the package.</text>
 		<description>4.3 (N1) The defining identifier for a component type must be unique in the namespace of the package within which it is declared.</description>
+	</problem>
+	
+	<problem id="P43N3" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>Ancestor in a component type extension must exist.</text>
+		<description>4.3 (N3) The component type identifier of the ancestor in a component type extension, i.e., that appears after the reserved word extends, must be defined in the specified package namespace. If no package name is specified, then the identifier must be defined in the namespace of the package the extension is declared in.</description>
+	</problem>
+	
+	<problem id="P43L3" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>The category of the component type being extended must match the category of the extending component type.</text>
+		<description>4.3 (L3) The category of the component type being extended must match the category of the extending component type, i.e., they must be identical or the category being extended must be abstract.</description>
+	</problem>
+	
+	<problem id="P43L6" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>Component type and it's ancestor should have both modes or requires modes subclauses.</text>
+		<description>4.3 (L6) If the extended component type and an ancestor component type in the extends hierachy contain modes subclauses, they must both be requires_modes_subclause or modes_subclause.</description>
 	</problem>
 	
 	<problem id="P51L1" category="ru.ispras.masiw.plugin.aadl.problem">
