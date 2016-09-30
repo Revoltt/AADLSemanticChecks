@@ -106,7 +106,6 @@ public class Check {
 								}
 							}
 						}
-						//localPublicNamespaces.get(curPackage.getIdentifier()).addAll(curPackage.getPublicSection().getDeclarationsMap().keySet());
 					}
 					
 					localPrivateNamespaces.put(curPackage.getIdentifier(), new HashSet<AADLIdentifier>());
@@ -123,7 +122,6 @@ public class Check {
 								}
 							}
 						}
-						//localPrivateNamespaces.get(curPackage.getIdentifier()).addAll(curPackage.getPrivateSection().getDeclarationsMap().keySet());
 					}
 				}
 			} else if ((l.get(i)).getClass().equals(PropertySetImpl.class)) {
@@ -199,19 +197,19 @@ public class Check {
 							// package is referenced
 							if (!globalPackageNamespace.contains(new AADLIdentifier(reference))) {
 								// package name referenced is not found in global namespace
-								raiseCommonProblem("P42N11g", packageAliases.get(i));
+								raiseCommonProblem("P42N11global", packageAliases.get(i));
 							} else if (!importsSet.contains(new AADLIdentifier(reference))) {
 								// package referenced is not imported
-								raiseCommonProblem("P42N11i", packageAliases.get(i));
+								raiseCommonProblem("P42N11import", packageAliases.get(i));
 							}
 						} else {
 							if (importsSet.contains(packageAliases.get(i).getIdentifier())) {
 								// alias conflicts with imported package names
-								raiseCommonProblem("P42N14p", packageAliases.get(i));
+								raiseCommonProblem("P42N14package", packageAliases.get(i));
 							}
 							if (curPackage.getIdentifier().equals(packageAliases.get(i).getIdentifier())) {
 								// alias conflicts with package name where it is defined
-								raiseCommonProblem("P42N14d", packageAliases.get(i));
+								raiseCommonProblem("P42N14defining", packageAliases.get(i));
 							}
 						}
 					}
@@ -222,17 +220,17 @@ public class Check {
 							String reference = classifierAliases.get(i).getClassifier().eProxyURI().fragment();
 							// classifier of feature group type is referenced
 							if (!reference.contains("::")) {
-								raiseCommonProblem("P42N12o", classifierAliases.get(i));
+								raiseCommonProblem("P42N12other", classifierAliases.get(i));
 							} else {
 								String packageName = reference.substring(0, reference.lastIndexOf("::"));
 								String identifier = reference.substring(reference.lastIndexOf("::") + 2);
 								//System.out.println(packageName + " " + identifier);
 								if (!globalPackageNamespace.contains(new AADLIdentifier(packageName))) {
 									// package name referenced is not found in global namespace
-									raiseCommonProblem("P42N11g", classifierAliases.get(i));
+									raiseCommonProblem("P42N11global", classifierAliases.get(i));
 								} else if (!importsSet.contains(new AADLIdentifier(packageName))) {
 									// package referenced is not imported
-									raiseCommonProblem("P42N11i", classifierAliases.get(i));
+									raiseCommonProblem("P42N11import", classifierAliases.get(i));
 								} else if (!localPublicNamespaces.get(new AADLIdentifier(packageName))
 										.contains(new AADLIdentifier(identifier))) {
 									// classifier referenced is not found in package
@@ -243,7 +241,7 @@ public class Check {
 							// check that alias name is not used in package local namespace
 							if (localPublicNamespaces.get(curPackage.getIdentifier()).contains(classifierAliases.get(i).getIdentifier())) {
 								// alias identifier is not unique by some other way
-								raiseCommonProblem("P42N14o", classifierAliases.get(i));
+								raiseCommonProblem("P42N14other", classifierAliases.get(i));
 							}
 							// add identifier of alias
 							localPublicNamespaces.get(curPackage.getIdentifier()).add(classifierAliases.get(i).getIdentifier());
@@ -266,13 +264,82 @@ public class Check {
 					// check that imports should contain existing packages and/or property sets
 					// TODO check if this works for property sets as good as for packages
 					EList<AADLIdentifier> imports = curPackage.getPrivateSection().getImports();
+					// set of package identifiers imported by this package
+					Set<AADLIdentifier> importsSet = new HashSet<AADLIdentifier>(); 
 					for (int i = 0; i < imports.size(); i++) {
+						importsSet.add(imports.get(i));
 						if (!globalPackageNamespace.contains(imports.get(i)) && !globalPrSetNamespace.contains(imports.get(i))) {
 							raiseCommonProblem("P42N7", curPackage.getPrivateSection());
 						}
 					}
 					
-					//TODO alias checking not implemented
+					// check that aliases should rename existing objects
+					EList<ClassifierAlias> classifierAliases = curPackage.getPrivateSection().getClassifierAliases();
+					EList<PackageAlias> packageAliases = curPackage.getPrivateSection().getPackageAliases();
+					
+					for (int i = 0; i < packageAliases.size(); i++) {
+						if (packageAliases.get(i).eIsProxy()) {
+							// the package is not found in namespace - there is proxy instead
+							String reference = packageAliases.get(i).eProxyURI().fragment();
+							
+							// package is referenced
+							if (!globalPackageNamespace.contains(new AADLIdentifier(reference))) {
+								// package name referenced is not found in global namespace
+								raiseCommonProblem("P42N11global", packageAliases.get(i));
+							} else if (!importsSet.contains(new AADLIdentifier(reference))) {
+								// package referenced is not imported
+								raiseCommonProblem("P42N11import", packageAliases.get(i));
+							}
+						} else {
+							if (importsSet.contains(packageAliases.get(i).getIdentifier())) {
+								// alias conflicts with imported package names
+								raiseCommonProblem("P42N14package", packageAliases.get(i));
+							}
+							if (curPackage.getIdentifier().equals(packageAliases.get(i).getIdentifier())) {
+								// alias conflicts with package name where it is defined
+								raiseCommonProblem("P42N14defining", packageAliases.get(i));
+							}
+						}
+					}
+					
+					for (int i = 0; i < classifierAliases.size(); i++) {	
+						if (classifierAliases.get(i).getClassifier().eIsProxy()) {
+							// the object is not found in namespace - there is proxy instead
+							String reference = classifierAliases.get(i).getClassifier().eProxyURI().fragment();
+							// classifier of feature group type is referenced
+							if (!reference.contains("::")) {
+								raiseCommonProblem("P42N12other", classifierAliases.get(i));
+							} else {
+								String packageName = reference.substring(0, reference.lastIndexOf("::"));
+								String identifier = reference.substring(reference.lastIndexOf("::") + 2);
+								//System.out.println(packageName + " " + identifier);
+								if (!globalPackageNamespace.contains(new AADLIdentifier(packageName))) {
+									// package name referenced is not found in global namespace
+									raiseCommonProblem("P42N11global", classifierAliases.get(i));
+								} else if (!importsSet.contains(new AADLIdentifier(packageName))) {
+									// package referenced is not imported
+									raiseCommonProblem("P42N11import", classifierAliases.get(i));
+								} else if (!localPublicNamespaces.get(new AADLIdentifier(packageName))
+										.contains(new AADLIdentifier(identifier))) {
+									// classifier referenced is not found in package
+									raiseCommonProblem("P42N12", classifierAliases.get(i));
+								}
+							}
+						} else {
+							// check that alias name is not used in package local namespace
+							if (localPublicNamespaces.get(curPackage.getIdentifier()).contains(classifierAliases.get(i).getIdentifier())) {
+								// alias identifier is not unique by some other way
+								raiseCommonProblem("P42N14other", classifierAliases.get(i));
+							}
+							// add identifier of alias
+							localPublicNamespaces.get(curPackage.getIdentifier()).add(classifierAliases.get(i).getIdentifier());
+							
+							if (!typeMatch(classifierAliases.get(i).getCategory().getName(), classifierAliases.get(i).getClassifier().getClass().getSimpleName())) {
+								// types do not match
+								raiseCommonProblem("P42L4", classifierAliases.get(i));
+							}
+						}
+					}
 					
 					// go through all component declarations
 					EList<AADLDeclaration> privateDeclararionsList = curPackage.getPrivateSection().getDeclarations();
@@ -297,10 +364,10 @@ public class Check {
 					} else if (!(ancestor.getClass().equals(DataTypeImpl.class)
 							|| ancestor.getClass().equals(AbstractTypeImpl.class))) {
 						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
-					} else if ((((DataTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+					} else if ((((DataTypeImpl) ancestor).getModes().size() > 0) && (componentTypeImpl.getModes().size() > 0) &&
 							(((DataTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
 						raiseCommonProblem("P43L6", componentTypeImpl);
-					}
+					} 
 				}
 				// go trough all properties
 				EList<PropertyAssociation> properties = componentTypeImpl.getProperties();
@@ -320,14 +387,14 @@ public class Check {
 				// modes are not allowed
 				EList<Mode> modes = componentTypeImpl.getModes();
 				if (modes.size() != 0) {
-					raiseCommonProblem("P51L2m", modes.get(0));
+					raiseCommonProblem("P51L2modes", modes.get(0));
 				}
 				
 				// flows are not allowed
 				// TODO are end-to-end flows possible?
 				EList<Flow> flows = componentTypeImpl.getFlows();
 				if (flows.size() != 0) {
-					raiseCommonProblem("P51L2f", flows.get(0));
+					raiseCommonProblem("P51L2flows", flows.get(0));
 				}
 			} else if (p.getClass().equals(SubprogramTypeImpl.class)) {
 				SubprogramTypeImpl componentTypeImpl = ((SubprogramTypeImpl) p);
@@ -342,7 +409,7 @@ public class Check {
 					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(SubprogramTypeImpl.class)
 							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
 						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
-					} else if ((((SubprogramTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+					} else if ((((SubprogramTypeImpl) ancestor).getModes().size() > 0) && (componentTypeImpl.getModes().size() > 0) &&
 							(((SubprogramTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
 						raiseCommonProblem("P43L6", componentTypeImpl);
 					}
@@ -360,7 +427,7 @@ public class Check {
 					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(SubprogramGroupTypeImpl.class)
 							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
 						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
-					} else if ((((SubprogramGroupTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+					} else if ((((SubprogramGroupTypeImpl) ancestor).getModes().size() > 0) && (componentTypeImpl.getModes().size() > 0) &&
 							(((SubprogramGroupTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
 						raiseCommonProblem("P43L6", componentTypeImpl);
 					}
@@ -378,7 +445,7 @@ public class Check {
 					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(ThreadTypeImpl.class)
 							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
 						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
-					} else if ((((ThreadTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+					} else if ((((ThreadTypeImpl) ancestor).getModes().size() > 0) && (componentTypeImpl.getModes().size() > 0) &&
 							(((ThreadTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
 						raiseCommonProblem("P43L6", componentTypeImpl);
 					}
@@ -396,7 +463,7 @@ public class Check {
 					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(ThreadGroupTypeImpl.class)
 							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
 						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
-					} else if ((((ThreadGroupTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+					} else if ((((ThreadGroupTypeImpl) ancestor).getModes().size() > 0) && (componentTypeImpl.getModes().size() > 0) &&
 							(((ThreadGroupTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
 						raiseCommonProblem("P43L6", componentTypeImpl);
 					}
@@ -414,7 +481,7 @@ public class Check {
 					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(ProcessTypeImpl.class)
 							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
 						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
-					} else if ((((ProcessTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+					} else if ((((ProcessTypeImpl) ancestor).getModes().size() > 0) && (componentTypeImpl.getModes().size() > 0) &&
 							(((ProcessTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
 						raiseCommonProblem("P43L6", componentTypeImpl);
 					}
@@ -432,7 +499,7 @@ public class Check {
 					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(MemoryTypeImpl.class)
 							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
 						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
-					} else if ((((MemoryTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+					} else if ((((MemoryTypeImpl) ancestor).getModes().size() > 0) && (componentTypeImpl.getModes().size() > 0) &&
 							(((MemoryTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
 						raiseCommonProblem("P43L6", componentTypeImpl);
 					}
@@ -450,7 +517,7 @@ public class Check {
 					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(ProcessorTypeImpl.class)
 							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
 						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
-					} else if ((((ProcessorTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+					} else if ((((ProcessorTypeImpl) ancestor).getModes().size() > 0) && (componentTypeImpl.getModes().size() > 0) &&
 							(((ProcessorTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
 						raiseCommonProblem("P43L6", componentTypeImpl);
 					}
@@ -468,7 +535,7 @@ public class Check {
 					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(BusTypeImpl.class)
 							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
 						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
-					} else if ((((BusTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+					} else if ((((BusTypeImpl) ancestor).getModes().size() > 0) && (componentTypeImpl.getModes().size() > 0) &&
 							(((BusTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
 						raiseCommonProblem("P43L6", componentTypeImpl);
 					}
@@ -486,7 +553,7 @@ public class Check {
 					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(DeviceTypeImpl.class)
 							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
 						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
-					} else if ((((DeviceTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+					} else if ((((DeviceTypeImpl) ancestor).getModes().size() > 0) && (componentTypeImpl.getModes().size() > 0) &&
 							(((DeviceTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
 						raiseCommonProblem("P43L6", componentTypeImpl);
 					}
@@ -504,7 +571,7 @@ public class Check {
 					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(VirtualProcessorTypeImpl.class)
 							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
 						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
-					} else if ((((VirtualProcessorTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+					} else if ((((VirtualProcessorTypeImpl) ancestor).getModes().size() > 0) && (componentTypeImpl.getModes().size() > 0) &&
 							(((VirtualProcessorTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
 						raiseCommonProblem("P43L6", componentTypeImpl);
 					}
@@ -522,7 +589,7 @@ public class Check {
 					} else if (!(componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(VirtualBusTypeImpl.class)
 							|| componentTypeImpl.getAncestor().getPrototypeOrClassifier().getClass().equals(AbstractTypeImpl.class))) {
 						raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
-					} else if ((((VirtualBusTypeImpl) ancestor).getModes() != null) && (componentTypeImpl.getModes() != null) &&
+					} else if ((((VirtualBusTypeImpl) ancestor).getModes().size() > 0) && (componentTypeImpl.getModes().size() > 0) &&
 							(((VirtualBusTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
 						raiseCommonProblem("P43L6", componentTypeImpl);
 					}
