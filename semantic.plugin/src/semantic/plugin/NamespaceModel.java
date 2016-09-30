@@ -17,6 +17,7 @@ import ru.ispras.masiw.plugin.aadl.metamodel.Feature;
 import ru.ispras.masiw.plugin.aadl.metamodel.Flow;
 import ru.ispras.masiw.plugin.aadl.metamodel.Mode;
 import ru.ispras.masiw.plugin.aadl.metamodel.ModeTransition;
+import ru.ispras.masiw.plugin.aadl.metamodel.NamedElement;
 import ru.ispras.masiw.plugin.aadl.metamodel.Prototype;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.AADLDeclaration;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.AllClassifiersAlias;
@@ -25,8 +26,10 @@ import ru.ispras.masiw.plugin.aadl.metamodel.extra.PackageAlias;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.PackageSection;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.PropertyAssociation;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.impl.PropertySetImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.AbstractTypeImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.ComponentImplementationImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.ComponentTypeImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.DataTypeImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.PackageImpl;
 import ru.ispras.masiw.plugin.aadl.model.AADLIdentifier;
 import ru.ispras.masiw.plugin.aadl.model.domain.AADLSpecificationDomain;
@@ -284,6 +287,10 @@ public class NamespaceModel {
 						}
 					}
 				}
+				
+				for (int i = 0; i < publicPackageSection.getDeclarations().size(); i++) {
+					classifierCheck(publicPackageSection.getDeclarations().get(i), p);
+				}
 			}
 			if (privatePackageSection != null) {
 				// get imports of private section
@@ -398,8 +405,38 @@ public class NamespaceModel {
 						}
 					}
 				}
+				
+				for (int i = 0; i < privatePackageSection.getDeclarations().size(); i++) {
+					classifierCheck(privatePackageSection.getDeclarations().get(i), p);
+				}
 			}
 		}
+	}
+	
+	public static void classifierCheck(AADLDeclaration c, PackageImpl p) {
+		if (ComponentTypeImpl.class.isAssignableFrom(c.getClass())) {
+			ComponentTypeImpl componentTypeImpl = (ComponentTypeImpl) c;
+			if (componentTypeImpl.getAncestor() != null) {
+				// component which is extended should exist
+				// TODO check if referenced package is in import declaration
+				NamedElement ancestor = componentTypeImpl.getAncestor().getPrototypeOrClassifier();
+				if (ancestor.eIsProxy()) {
+					// the ancestor is not found in namespace - there is proxy instead
+					raiseCommonProblem("P43N3", componentTypeImpl.getAncestor());
+				} else if (!(ancestor.getClass().equals(componentTypeImpl.getClass()) || ancestor.getClass().equals(AbstractTypeImpl.class))) {
+					raiseCommonProblem("P43L3", componentTypeImpl.getAncestor());
+				} else if ((((ComponentTypeImpl) ancestor).getModes().size() > 0) && (componentTypeImpl.getModes().size() > 0) &&
+						(((ComponentTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
+					raiseCommonProblem("P43L6", componentTypeImpl);
+				} 
+			}
+		} else if (ComponentImplementationImpl.class.isAssignableFrom(c.getClass())) {
+			ComponentImplementationImpl componentImplementationImpl = (ComponentImplementationImpl) c;
+		}
+	//	if (p.getClass().equals(DataTypeImpl.class)) {
+	//		// for Data type components
+	//		DataTypeImpl componentTypeImpl = ((DataTypeImpl) p);	
+	//	}
 	}
 	
 	public static void packageNamespaceCreate(PackageImpl p) {
@@ -473,6 +510,8 @@ public class NamespaceModel {
 		localClassifierNamespaces.put(p.getIdentifier(), new HashMap<AADLIdentifier, Set<AADLIdentifier>>());
 		if (ComponentTypeImpl.class.isAssignableFrom(c.getClass())) {
 			ComponentTypeImpl componentTypeImpl = (ComponentTypeImpl) c;
+			
+			// create namespace for a classifier of specified package
 			Set<AADLIdentifier> tempSet = new HashSet<AADLIdentifier>();
 			
 			EList<Mode> modes = componentTypeImpl.getModes();
@@ -519,11 +558,6 @@ public class NamespaceModel {
 			
 		} else if (ComponentImplementationImpl.class.isAssignableFrom(c.getClass())) {
 			ComponentImplementationImpl componentImplementationImpl = (ComponentImplementationImpl) c;
-			
 		}
-//		if (p.getClass().equals(DataTypeImpl.class)) {
-//			// for Data type components
-//			DataTypeImpl componentTypeImpl = ((DataTypeImpl) p);	
-//		}
 	}
 }
