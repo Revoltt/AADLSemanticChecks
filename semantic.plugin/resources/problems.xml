@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <problems>
-	<problem id="P41N1" category="ru.ispras.masiw.plugin.aadl.problem">
+		<problem id="P41N1" category="ru.ispras.masiw.plugin.aadl.problem">
 		<text>Identifiers in specification namespace must be unique.</text>
 		<description>4.1 (N1) An AADL specification has one global namespace. The package and property set identifiers reside in this space and must be unique.</description>
 	</problem>
@@ -66,7 +66,7 @@
 	</problem>
 	
 	<problem id="P43N1" category="ru.ispras.masiw.plugin.aadl.problem">
-		<text>The defining identifier for a component type id not unique in the namespace of the package.</text>
+		<text>The defining identifier for a component type is not unique in the namespace of the package.</text>
 		<description>4.3 (N1) The defining identifier for a component type must be unique in the namespace of the package within which it is declared.</description>
 	</problem>
 	
@@ -88,6 +88,26 @@
 	<problem id="P43L6" category="ru.ispras.masiw.plugin.aadl.problem">
 		<text>Component type and it's ancestor should have both modes or requires modes subclauses.</text>
 		<description>4.3 (L6) If the extended component type and an ancestor component type in the extends hierachy contain modes subclauses, they must both be requires_modes_subclause or modes_subclause.</description>
+	</problem>
+	
+	<problem id="P44N1" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>Component type of component implementation is not declared.</text>
+		<description>4.4 (N1)  A component implementation name consists of a component type identifier and a component implementation identifier separated by a dot (вЂњ.вЂќ). The first identifier of the defining component implementation name must name a component type that is declared in the same package as the component implementation, or name an alias to a component type in another package.</description>
+	</problem>
+	
+	<problem id="P44N2" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>The defining identifier for a component implementation is not unique in the local namespace of the component type.</text>
+		<description>4.4 (N2) The defining identifier of the component implementation must be unique within the local namespace of the component type.</description>
+	</problem>
+	
+	<problem id="P44N3" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>Identifier is not unique in component implementation local namespace.</text>
+		<description>4.4 (N3) Every component implementation defines a local namespace for all defining identifiers of prototypes, subcomponents, subprogram calls, connections, flows, and modes declared within the component implementation. The defining identifier of a prototype, subcomponent, subprogram call, connection, flow, or mode must be unique within this namespace.</description>
+	</problem>
+	
+	<problem id="P44N4" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>Component implementation contains identifier which intersects with component type local namespace.</text>
+		<description>4.4 (N4) This local namespace inherits the namespace of the associated component type, i.e., defining identifiers must be unique within the local namespace and also within the component type namespace.</description>
 	</problem>
 	
 	<problem id="P51L1" category="ru.ispras.masiw.plugin.aadl.problem">
