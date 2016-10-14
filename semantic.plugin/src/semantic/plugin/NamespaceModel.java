@@ -13,18 +13,22 @@ import org.eclipse.emf.ecore.EObject;
 import ru.ispras.antlr.v4.editing.core.runtime.CommonProblem;
 import ru.ispras.antlr.v4.editing.core.runtime.IExtendedEObject;
 import ru.ispras.masiw.plugin.aadl.ProblemHelper;
+import ru.ispras.masiw.plugin.aadl.metamodel.Connection;
 import ru.ispras.masiw.plugin.aadl.metamodel.Feature;
 import ru.ispras.masiw.plugin.aadl.metamodel.Flow;
 import ru.ispras.masiw.plugin.aadl.metamodel.Mode;
 import ru.ispras.masiw.plugin.aadl.metamodel.ModeTransition;
 import ru.ispras.masiw.plugin.aadl.metamodel.NamedElement;
 import ru.ispras.masiw.plugin.aadl.metamodel.Prototype;
+import ru.ispras.masiw.plugin.aadl.metamodel.Subcomponent;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.AADLDeclaration;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.AllClassifiersAlias;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.ClassifierAlias;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.PackageAlias;
+import ru.ispras.masiw.plugin.aadl.metamodel.extra.PackageDeclaration;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.PackageSection;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.PropertyAssociation;
+import ru.ispras.masiw.plugin.aadl.metamodel.extra.SubprogramCallSequence;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.impl.PropertySetImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.AbstractTypeImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.ComponentImplementationImpl;
@@ -76,11 +80,37 @@ public class NamespaceModel {
 	}
 	
 	// function to check if category type and referenced component type of alias_declaration match each other
-	private static boolean typeMatch(String categoryType, String classifierType) {
-		if (classifierType.startsWith(categoryType)) {
-			return true;
+	private static boolean typeMatch(String s1, String s2) { // was categoryType classifierType
+		if (s1.endsWith("Impl")) {
+			s1 = s1.substring(0, s1.length() - "Impl".length());
 		}
-		return false;
+		
+		if (s2.endsWith("Impl")) {
+			s2 = s2.substring(0, s2.length() - "Impl".length());
+		}
+		
+		if (s1.endsWith("Implementation")) {
+			s1 = s1.substring(0, s1.length() - "Implementation".length());
+		}
+		
+		if (s2.endsWith("Implementation")) {
+			s2 = s2.substring(0, s2.length() - "Implementation".length());
+		}
+		
+		if (s1.endsWith("Type")) {
+			s1 = s1.substring(0, s1.length() - "Type".length());
+		}
+		
+		if (s2.endsWith("Type")) {
+			s2 = s2.substring(0, s2.length() - "Type".length());
+		}
+	
+		return s1.equals(s2);
+		
+//		if (classifierType.startsWith(categoryType)) {
+//			return true;
+//		}
+//		return false;
 	}
 	
 	// main function for creating namespace model
@@ -172,6 +202,7 @@ public class NamespaceModel {
 		if ((publicDeclarations > 1) || (privateDeclarations > 1)) {
 			// only one public and one private package declaration is allowed
 			// this type of error should be already raised earlier
+			
 			//raiseCommonProblem("P42N1", p.getPackageDeclarations().get(0));
 		} else {
 			if (publicPackageSection != null) {
@@ -225,7 +256,7 @@ public class NamespaceModel {
 					if (classifierAliases.get(i).getClassifier().eIsProxy()) {
 						// the object is not found in namespace - there is proxy instead
 						String reference = classifierAliases.get(i).getClassifier().eProxyURI().fragment();
-						// classifier of feature group type is referenced
+						// classifier or feature group type is referenced
 						// TODO check if feature group alias is classifierAlias
 						if (!reference.contains("::")) {
 							// no package is referenced
@@ -290,7 +321,6 @@ public class NamespaceModel {
 				
 				for (int i = 0; i < publicPackageSection.getDeclarations().size(); i++) {
 					// check classifier rules
-					// TODO check classifier implementation rules
 					classifierCheck(publicPackageSection.getDeclarations().get(i), p);
 				}
 			}
@@ -345,7 +375,7 @@ public class NamespaceModel {
 					if (classifierAliases.get(i).getClassifier().eIsProxy()) {
 						// the object is not found in namespace - there is proxy instead
 						String reference = classifierAliases.get(i).getClassifier().eProxyURI().fragment();
-						// classifier of feature group type is referenced
+						// classifier or feature group type is referenced
 						// TODO check if feature group alias is classifierAlias
 						if (!reference.contains("::")) {
 							// no package is referenced
@@ -433,10 +463,10 @@ public class NamespaceModel {
 						(((ComponentTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
 					// both modes and requires modes subclauses are not allowed
 					raiseCommonProblem("P43L6", componentTypeImpl);
-				} 
-				// TODO Prototype bindings, refinements
-				// TODO check intersection with namespace of ancestor
+				}
 			}
+			// TODO Prototype bindings, refinements
+			// TODO check intersection with namespace of ancestor
 		} else if (ComponentImplementationImpl.class.isAssignableFrom(c.getClass())) {
 			ComponentImplementationImpl componentImplementationImpl = (ComponentImplementationImpl) c;
 			// check if there is intersection with local namespace of corresponding component type
@@ -445,6 +475,64 @@ public class NamespaceModel {
 			if (!intersection.isEmpty()) {
 				raiseCommonProblem("P44N4", c);
 			}
+			
+			// check if implementation type matches with classifier type
+			if (!typeMatch(componentImplementationImpl.getClass().getSimpleName(), componentImplementationImpl.getComponentType().getClass().getSimpleName())) {
+				raiseCommonProblem("P44L3", c);
+			}
+			
+			if (componentImplementationImpl.getAncestor() != null) {
+				// component implementation which is extended should exist
+				// TODO check if referenced package is in import declaration
+				NamedElement ancestor = componentImplementationImpl.getAncestor().getPrototypeOrClassifier();
+				if (ancestor.eIsProxy()) {
+					// the ancestor is not found in namespace - there is proxy instead
+					// TODO problem not is list
+				} else if (!(ancestor.getClass().equals(componentImplementationImpl.getClass()) || ancestor.getClass().equals(AbstractTypeImpl.class))) {
+					// classes classifier and it's ancestor should match
+					raiseCommonProblem("P44L4", componentImplementationImpl.getAncestor());
+				}
+			}
+			
+			// both public and private section contain component implementation with the same name
+			if (localPublicNamespaces.get(p.getIdentifier()).contains(componentImplementationImpl.getIdentifier()) && 
+					localPrivateNamespaces.get(p.getIdentifier()).contains(componentImplementationImpl.getIdentifier())) {
+				// we are processing public section
+				if (componentImplementationImpl.eContainer().equals(
+						((PackageDeclaration) componentImplementationImpl.eContainer().eContainer()).getPublicSection())) {
+					// if component implementation contains anything but properties and modes
+					// that is subcomponents, subprogram calls, prototypes, connections, flows - then error
+					if ((componentImplementationImpl.getSubcomponents().size() > 0) ||
+							(componentImplementationImpl.getCalls().size() > 0) ||
+							(componentImplementationImpl.getPrototypes().size() > 0) ||
+							(componentImplementationImpl.getConnections().size() > 0) ||
+							(componentImplementationImpl.getFlows().size() > 0)) {
+						raiseCommonProblem("P42L3", c);
+					}
+				}
+			}
+			
+			// check modes of component type
+			EList<Mode> typeModes = componentImplementationImpl.getComponentType().getModes();
+			for (int i = 0; i < typeModes.size(); i++) {
+				if (typeModes.get(i).isRequires()) {
+					// if component type has requires modes then component implementation cannot contain ANY modes subclause
+					// TODO check also ancestors' requires modes
+					if (componentImplementationImpl.getModes().size() > 0) {
+						raiseCommonProblem("P44L6", c);
+					}
+				} else {
+					// component type has modes then component implementation cannot have mode declarations
+					// TODO check also ancestors' modes
+					EList<Mode> modes = componentImplementationImpl.getModes();
+					for (int j = 0; j < modes.size(); j++) {
+						if (!modes.get(i).isRequires()) {
+							raiseCommonProblem("P44L7", c);
+						}
+					}
+				}
+			}
+			
 			// TODO check intersection with namespace of ancestor
 			// TODO check other classifier implementation rules
 		}
@@ -490,10 +578,10 @@ public class NamespaceModel {
 			// only one public and one private package declaration is allowed
 			raiseCommonProblem("P42N1", p.getPackageDeclarations().get(0));
 		} else {
+			localClassifierNamespaces.put(p.getIdentifier(), new HashMap<AADLIdentifier, Set<AADLIdentifier>>());
 			if (publicPackageSection != null) {
 				// add all classifier identifiers to local public namespace
 				EList<AADLDeclaration> declarationsList = publicPackageSection.getDeclarations();
-				localClassifierNamespaces.put(p.getIdentifier(), new HashMap<AADLIdentifier, Set<AADLIdentifier>>());
 				for (int i = 0; i < declarationsList.size(); i++) {
 					
 					if (localPublicNamespaces.get(p.getIdentifier()).contains(declarationsList.get(i).getIdentifier())) {
@@ -515,7 +603,6 @@ public class NamespaceModel {
 			if (privatePackageSection != null) {
 				// add all classifier identifiers to local private namespace
 				EList<AADLDeclaration> declarationsList = privatePackageSection.getDeclarations();
-				localClassifierNamespaces.put(p.getIdentifier(), new HashMap<AADLIdentifier, Set<AADLIdentifier>>());
 				for (int i = 0; i < declarationsList.size(); i++) {
 					if (localPrivateNamespaces.get(p.getIdentifier()).contains(declarationsList.get(i).getIdentifier())) {
 						// identifier in the package section is not unique
@@ -592,7 +679,6 @@ public class NamespaceModel {
 			localClassifierNamespaces.get(p.getIdentifier()).put(c.getIdentifier(), new HashSet<AADLIdentifier>(tempSet));
 		} else if (ComponentImplementationImpl.class.isAssignableFrom(c.getClass())) {
 			ComponentImplementationImpl componentImplementationImpl = (ComponentImplementationImpl) c;
-			// componentType - what was implemented
 			if (componentImplementationImpl.getComponentType().eIsProxy()) {
 				// component type to which implementation refers does not exist
 				raiseCommonProblem("P44N1", componentImplementationImpl);
@@ -609,6 +695,33 @@ public class NamespaceModel {
 						tempSet.add(modes.get(i).getIdentifier());
 					}
 				}
+				// add all subcomponents names
+				EList<Subcomponent> subcomponents = componentImplementationImpl.getSubcomponents();
+				for (int i = 0; i < subcomponents.size(); i++) {
+					if (tempSet.contains(subcomponents.get(i).getIdentifier())) {
+						raiseCommonProblem("P44N3", subcomponents.get(i));
+					} else {
+						tempSet.add(subcomponents.get(i).getIdentifier());
+					}
+				}
+				// add all subprogram calls
+				EList<SubprogramCallSequence> calls = componentImplementationImpl.getCalls();
+				for (int i = 0; i < calls.size(); i++) {
+					if (tempSet.contains(calls.get(i).getIdentifier())) {
+						raiseCommonProblem("P44N3", calls.get(i));
+					} else {
+						tempSet.add(calls.get(i).getIdentifier());
+					}
+				}
+				// add all connections
+				EList<Connection> connections = componentImplementationImpl.getConnections();
+				for (int i = 0; i < connections.size(); i++) {
+					if (tempSet.contains(connections.get(i).getIdentifier())) {
+						raiseCommonProblem("P44N3", connections.get(i));
+					} else {
+						tempSet.add(connections.get(i).getIdentifier());
+					}
+				}
 				// add all prototype names
 				EList<Prototype> prototypes = componentImplementationImpl.getPrototypes();
 				for (int i = 0; i < prototypes.size(); i++) {
@@ -618,7 +731,6 @@ public class NamespaceModel {
 						tempSet.add(prototypes.get(i).getIdentifier());
 					}
 				}
-				
 				// add all mode transitions names
 				EList<ModeTransition> modetransitions = componentImplementationImpl.getModeTransitions();
 				for (int i = 0; i < modetransitions.size(); i++) {

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <problems>
-		<problem id="P41N1" category="ru.ispras.masiw.plugin.aadl.problem">
+	<problem id="P41N1" category="ru.ispras.masiw.plugin.aadl.problem">
 		<text>Identifiers in specification namespace must be unique.</text>
 		<description>4.1 (N1) An AADL specification has one global namespace. The package and property set identifiers reside in this space and must be unique.</description>
 	</problem>
@@ -60,6 +60,11 @@
 		<description>4.2 (N16) If the alias_declaration renames all publicly visible identifiers of component types and feature group types by naming the package and all, then all those identifiers must also be unique in the namespace of the package with the alias declaration.</description>
 	</problem>
 	
+	<problem id="P42L3" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>Public part of component implementation can contain only properties and modes if it is declared in both public and private parts of package.</text>
+		<description>4.2 (L3) A component implementation may be declared in both the public and private part of a package. In that case the declaration in the public part may only contain a properties subclause and a modes subclause.</description>
+	</problem>
+	
 	<problem id="P42L4" category="ru.ispras.masiw.plugin.aadl.problem">
 		<text>The component category does not match the category of referenced component type.</text>
 		<description>4.2 (L4) The component category in an alias declaration must match the category of the referenced component type.</description>
@@ -108,6 +113,26 @@
 	<problem id="P44N4" category="ru.ispras.masiw.plugin.aadl.problem">
 		<text>Component implementation contains identifier which intersects with component type local namespace.</text>
 		<description>4.4 (N4) This local namespace inherits the namespace of the associated component type, i.e., defining identifiers must be unique within the local namespace and also within the component type namespace.</description>
+	</problem>
+	
+	<problem id="P44L3" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>Component implementation category does not match it's component type category.</text>
+		<description>4.4 (L3) The category of the component implementation must be identical to the category of the component type for which the component implementation is declared.</description>
+	</problem>
+	
+	<problem id="P44L4" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>The category of the component implementation being extended must match the category of the extending component implementation.</text>
+		<description>4.4 (L4) If the component implementation extends another component implementation, the category of both must match, i.e., they must be identical or the category being extended must be abstract.</description>
+	</problem>
+	
+	<problem id="P44L6" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>Component implementation must not contain mode subclause because component type contains requires modes subclause.</text>
+		<description>4.4 (L6) If the component type of the component implementation contains a requires_modes_subclause then the component implementation must not contain any modes subclause.</description>
+	</problem>
+	
+	<problem id="P44L7" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>If modes are declared in the component type, then modes cannot be declared in component implementations.</text>
+		<description>4.4 (L7) If modes are declared in the component type, then modes cannot be declared in component implementations.</description>
 	</problem>
 	
 	<problem id="P51L1" category="ru.ispras.masiw.plugin.aadl.problem">
