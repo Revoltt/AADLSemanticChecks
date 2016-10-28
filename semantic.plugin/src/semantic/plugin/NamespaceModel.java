@@ -13,6 +13,7 @@ import org.eclipse.emf.ecore.EObject;
 import ru.ispras.antlr.v4.editing.core.runtime.CommonProblem;
 import ru.ispras.antlr.v4.editing.core.runtime.IExtendedEObject;
 import ru.ispras.masiw.plugin.aadl.ProblemHelper;
+import ru.ispras.masiw.plugin.aadl.metamodel.Classifier;
 import ru.ispras.masiw.plugin.aadl.metamodel.Connection;
 import ru.ispras.masiw.plugin.aadl.metamodel.Feature;
 import ru.ispras.masiw.plugin.aadl.metamodel.Flow;
@@ -24,6 +25,7 @@ import ru.ispras.masiw.plugin.aadl.metamodel.Subcomponent;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.AADLDeclaration;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.AllClassifiersAlias;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.ClassifierAlias;
+import ru.ispras.masiw.plugin.aadl.metamodel.extra.ClassifierWithBindings;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.PackageAlias;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.PackageDeclaration;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.PackageSection;
@@ -31,9 +33,11 @@ import ru.ispras.masiw.plugin.aadl.metamodel.extra.PropertyAssociation;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.SubprogramCallSequence;
 import ru.ispras.masiw.plugin.aadl.metamodel.extra.impl.PropertySetImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.AbstractTypeImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.ClassifierImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.ComponentImplementationImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.ComponentTypeImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.DataTypeImpl;
+import ru.ispras.masiw.plugin.aadl.metamodel.impl.NamedElementImpl;
 import ru.ispras.masiw.plugin.aadl.metamodel.impl.PackageImpl;
 import ru.ispras.masiw.plugin.aadl.model.AADLIdentifier;
 import ru.ispras.masiw.plugin.aadl.model.domain.AADLSpecificationDomain;
@@ -66,7 +70,9 @@ public class NamespaceModel {
 	public static Map<AADLIdentifier, Set<AADLIdentifier>> localPrivateAllAliases;
 	
 	// names of defining identifiers of classifier
-	public static Map<AADLIdentifier, Map<AADLIdentifier, Set<AADLIdentifier>>> localClassifierNamespaces;
+	//public static Map<AADLIdentifier, Map<AADLIdentifier, Set<AADLIdentifier>>> localClassifierNamespaces;
+	public static Map<AADLIdentifier, Map<AADLIdentifier, Map<AADLIdentifier, IExtendedEObject>>> localClassifierNamespacesWithBindings;
+	
 	
 	//function for raising problems
 	private static void raiseCommonProblem(String id, IExtendedEObject x) {
@@ -77,6 +83,21 @@ public class NamespaceModel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	
+	// function for getting inherited namespace of classifier
+	private static Set<AADLIdentifier> getAncestorNamespaces(ClassifierImpl ctype) {
+		//Set<AADLIdentifier> localNamespace = (localClassifierNamespaces.get(p.getIdentifier())).get(ctype);
+		Set<AADLIdentifier> inheritedNamespace = new HashSet<AADLIdentifier>();
+		ClassifierImpl cur = ctype;
+		while (cur.getAncestor() != null) {
+			cur = (ClassifierImpl) cur.getAncestor().getPrototypeOrClassifier();
+			//inheritedNamespace.addAll((localClassifierNamespaces.get(p.getIdentifier())).get(cur.getIdentifier()));
+			inheritedNamespace.addAll((localClassifierNamespacesWithBindings.get(((NamedElement) cur.eContainer().eContainer()).getIdentifier())).get(cur.getIdentifier()).keySet());
+			
+		}
+		return inheritedNamespace;
 	}
 	
 	// function to check if category type and referenced component type of alias_declaration match each other
@@ -140,7 +161,8 @@ public class NamespaceModel {
 		localPublicAllAliases = new HashMap<AADLIdentifier, Set<AADLIdentifier>>();
 		localPrivateAllAliases = new HashMap<AADLIdentifier, Set<AADLIdentifier>>();
 		
-		localClassifierNamespaces = new HashMap<AADLIdentifier, Map<AADLIdentifier, Set<AADLIdentifier>>>();
+		//localClassifierNamespaces = new HashMap<AADLIdentifier, Map<AADLIdentifier, Set<AADLIdentifier>>>();
+		localClassifierNamespacesWithBindings = new HashMap<AADLIdentifier, Map<AADLIdentifier, Map<AADLIdentifier, IExtendedEObject>>>();
 		
 		
 		// create global namespace of packages and property sets
@@ -463,15 +485,27 @@ public class NamespaceModel {
 						(((ComponentTypeImpl) ancestor).getModes().get(0).isRequires() ^ componentTypeImpl.getModes().get(0).isRequires())) {
 					// both modes and requires modes subclauses are not allowed
 					raiseCommonProblem("P43L6", componentTypeImpl);
+				} else {
+					// check intersection of component type local namespace with namespaces of it's ancestors
+					Set<AADLIdentifier> inheritedNamespace = getAncestorNamespaces(componentTypeImpl);
+					//Set<AADLIdentifier> intersection = new HashSet<AADLIdentifier>(localClassifierNamespaces.get(p.getIdentifier()).get(componentTypeImpl.getIdentifier()));
+					Set<AADLIdentifier> intersection = new HashSet<AADLIdentifier>(localClassifierNamespacesWithBindings.get(p.getIdentifier()).get(componentTypeImpl.getIdentifier()).keySet());
+					
+					intersection.retainAll(inheritedNamespace);
+					if (!intersection.isEmpty()) {
+						raiseCommonProblem("P43N4", componentTypeImpl);
+					}
 				}
+				// TODO prototype bindings
 			}
-			// TODO Prototype bindings, refinements
-			// TODO check intersection with namespace of ancestor
+			// TODO refinements
 		} else if (ComponentImplementationImpl.class.isAssignableFrom(c.getClass())) {
 			ComponentImplementationImpl componentImplementationImpl = (ComponentImplementationImpl) c;
 			// check if there is intersection with local namespace of corresponding component type
-			Set<AADLIdentifier> intersection = new HashSet<AADLIdentifier>(localClassifierNamespaces.get(p.getIdentifier()).get(componentImplementationImpl.getIdentifier()));
-			intersection.retainAll(localClassifierNamespaces.get(p.getIdentifier()).get(componentImplementationImpl.getComponentType().getIdentifier()));
+			//Set<AADLIdentifier> intersection = new HashSet<AADLIdentifier>(localClassifierNamespaces.get(p.getIdentifier()).get(componentImplementationImpl.getIdentifier()));
+			Set<AADLIdentifier> intersection = new HashSet<AADLIdentifier>(localClassifierNamespacesWithBindings.get(p.getIdentifier()).get(componentImplementationImpl.getIdentifier()).keySet());
+			
+			intersection.retainAll(localClassifierNamespacesWithBindings.get(p.getIdentifier()).get(componentImplementationImpl.getComponentType().getIdentifier()).keySet());
 			if (!intersection.isEmpty()) {
 				raiseCommonProblem("P44N4", c);
 			}
@@ -489,9 +523,10 @@ public class NamespaceModel {
 					// the ancestor is not found in namespace - there is proxy instead
 					// TODO problem not is list
 				} else if (!(ancestor.getClass().equals(componentImplementationImpl.getClass()) || ancestor.getClass().equals(AbstractTypeImpl.class))) {
-					// classes classifier and it's ancestor should match
+					// classes of classifier and it's ancestor should match
 					raiseCommonProblem("P44L4", componentImplementationImpl.getAncestor());
 				}
+				// TODO prototype bindings, refinements
 			}
 			
 			// both public and private section contain component implementation with the same name
@@ -532,9 +567,6 @@ public class NamespaceModel {
 					}
 				}
 			}
-			
-			// TODO check intersection with namespace of ancestor
-			// TODO check other classifier implementation rules
 		}
 	//	if (p.getClass().equals(DataTypeImpl.class)) {
 	//		// for Data type components
@@ -578,7 +610,9 @@ public class NamespaceModel {
 			// only one public and one private package declaration is allowed
 			raiseCommonProblem("P42N1", p.getPackageDeclarations().get(0));
 		} else {
-			localClassifierNamespaces.put(p.getIdentifier(), new HashMap<AADLIdentifier, Set<AADLIdentifier>>());
+			//localClassifierNamespaces.put(p.getIdentifier(), new HashMap<AADLIdentifier, Set<AADLIdentifier>>());
+			localClassifierNamespacesWithBindings.put(p.getIdentifier(), new HashMap<AADLIdentifier, Map<AADLIdentifier, IExtendedEObject>>());
+			
 			if (publicPackageSection != null) {
 				// add all classifier identifiers to local public namespace
 				EList<AADLDeclaration> declarationsList = publicPackageSection.getDeclarations();
@@ -630,6 +664,7 @@ public class NamespaceModel {
 			
 			// create namespace for a classifier of specified package
 			Set<AADLIdentifier> tempSet = new HashSet<AADLIdentifier>();
+			Map<AADLIdentifier, IExtendedEObject> tempMap = new HashMap<AADLIdentifier, IExtendedEObject>();
 			
 			// add all modes names
 			EList<Mode> modes = componentTypeImpl.getModes();
@@ -638,6 +673,7 @@ public class NamespaceModel {
 					raiseCommonProblem("P43N2", modes.get(i));
 				} else {
 					tempSet.add(modes.get(i).getIdentifier());
+					tempMap.put(modes.get(i).getIdentifier(), modes.get(i));
 				}
 			}
 			// add all prototype names
@@ -647,6 +683,7 @@ public class NamespaceModel {
 					raiseCommonProblem("P43N2", prototypes.get(i));
 				} else {
 					tempSet.add(prototypes.get(i).getIdentifier());
+					tempMap.put(prototypes.get(i).getIdentifier(), prototypes.get(i));
 				}
 			}
 			// add all feature names
@@ -656,6 +693,7 @@ public class NamespaceModel {
 					raiseCommonProblem("P43N2", features.get(i));
 				} else {
 					tempSet.add(features.get(i).getIdentifier());
+					tempMap.put(features.get(i).getIdentifier(), features.get(i));
 				}
 			}
 			// add all mode transitions names
@@ -665,6 +703,7 @@ public class NamespaceModel {
 					raiseCommonProblem("P43N2", modetransitions.get(i));
 				} else {
 					tempSet.add(modetransitions.get(i).getIdentifier());
+					tempMap.put(modetransitions.get(i).getIdentifier(), modetransitions.get(i));
 				}
 			}
 			// add all flow names
@@ -674,9 +713,11 @@ public class NamespaceModel {
 					raiseCommonProblem("P43N2", flows.get(i));
 				} else {
 					tempSet.add(flows.get(i).getIdentifier());
+					tempMap.put(flows.get(i).getIdentifier(), flows.get(i));
 				}
 			}
-			localClassifierNamespaces.get(p.getIdentifier()).put(c.getIdentifier(), new HashSet<AADLIdentifier>(tempSet));
+			//localClassifierNamespaces.get(p.getIdentifier()).put(c.getIdentifier(), new HashSet<AADLIdentifier>(tempSet));
+			localClassifierNamespacesWithBindings.get(p.getIdentifier()).put(c.getIdentifier(), new HashMap<AADLIdentifier, IExtendedEObject>(tempMap));
 		} else if (ComponentImplementationImpl.class.isAssignableFrom(c.getClass())) {
 			ComponentImplementationImpl componentImplementationImpl = (ComponentImplementationImpl) c;
 			if (componentImplementationImpl.getComponentType().eIsProxy()) {
@@ -685,6 +726,7 @@ public class NamespaceModel {
 			} else {
 				// create namespace for a classifier of specified package
 				Set<AADLIdentifier> tempSet = new HashSet<AADLIdentifier>();
+				Map<AADLIdentifier, IExtendedEObject> tempMap = new HashMap<AADLIdentifier, IExtendedEObject>();
 				
 				// add all modes names
 				EList<Mode> modes = componentImplementationImpl.getModes();
@@ -693,6 +735,7 @@ public class NamespaceModel {
 						raiseCommonProblem("P44N3", modes.get(i));
 					} else {
 						tempSet.add(modes.get(i).getIdentifier());
+						tempMap.put(modes.get(i).getIdentifier(), modes.get(i));
 					}
 				}
 				// add all subcomponents names
@@ -702,6 +745,7 @@ public class NamespaceModel {
 						raiseCommonProblem("P44N3", subcomponents.get(i));
 					} else {
 						tempSet.add(subcomponents.get(i).getIdentifier());
+						tempMap.put(subcomponents.get(i).getIdentifier(), subcomponents.get(i));
 					}
 				}
 				// add all subprogram calls
@@ -711,6 +755,7 @@ public class NamespaceModel {
 						raiseCommonProblem("P44N3", calls.get(i));
 					} else {
 						tempSet.add(calls.get(i).getIdentifier());
+						tempMap.put(calls.get(i).getIdentifier(), calls.get(i));
 					}
 				}
 				// add all connections
@@ -720,6 +765,7 @@ public class NamespaceModel {
 						raiseCommonProblem("P44N3", connections.get(i));
 					} else {
 						tempSet.add(connections.get(i).getIdentifier());
+						tempMap.put(connections.get(i).getIdentifier(), connections.get(i));
 					}
 				}
 				// add all prototype names
@@ -729,6 +775,7 @@ public class NamespaceModel {
 						raiseCommonProblem("P44N3", prototypes.get(i));
 					} else {
 						tempSet.add(prototypes.get(i).getIdentifier());
+						tempMap.put(prototypes.get(i).getIdentifier(), prototypes.get(i));
 					}
 				}
 				// add all mode transitions names
@@ -738,6 +785,7 @@ public class NamespaceModel {
 						raiseCommonProblem("P44N3", modetransitions.get(i));
 					} else {
 						tempSet.add(modetransitions.get(i).getIdentifier());
+						tempMap.put(modetransitions.get(i).getIdentifier(), modetransitions.get(i));
 					}
 				}
 				// add all flow names
@@ -747,9 +795,11 @@ public class NamespaceModel {
 						raiseCommonProblem("P44N3", flows.get(i));
 					} else {
 						tempSet.add(flows.get(i).getIdentifier());
+						tempMap.put(flows.get(i).getIdentifier(), flows.get(i));
 					}
 				}
-				localClassifierNamespaces.get(p.getIdentifier()).put(c.getIdentifier(), new HashSet<AADLIdentifier>(tempSet));
+				//localClassifierNamespaces.get(p.getIdentifier()).put(c.getIdentifier(), new HashSet<AADLIdentifier>(tempSet));
+				localClassifierNamespacesWithBindings.get(p.getIdentifier()).put(c.getIdentifier(), new HashMap<AADLIdentifier, IExtendedEObject>(tempMap));
 			}
 		}
 	}

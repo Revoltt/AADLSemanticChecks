@@ -11,7 +11,7 @@
 	</problem>
 	
 	<problem id="P42N7" category="ru.ispras.masiw.plugin.aadl.problem">
-		<text>The package name in a import_declaration must exist in the global name space.</text>
+		<text>The package name in a import_declaration must exist in the global namespace.</text>
 		<description>4.2 (N7) The package name in a import_declaration must exist in the global name space.</description>
 	</problem>
 	
@@ -83,6 +83,11 @@
 	<problem id="P43N3" category="ru.ispras.masiw.plugin.aadl.problem">
 		<text>Ancestor in a component type extension must exist.</text>
 		<description>4.3 (N3) The component type identifier of the ancestor in a component type extension, i.e., that appears after the reserved word extends, must be defined in the specified package namespace. If no package name is specified, then the identifier must be defined in the namespace of the package the extension is declared in.</description>
+	</problem>
+	
+	<problem id="P43N4" category="ru.ispras.masiw.plugin.aadl.problem">
+		<text>Identifier is not unique in component type namespace because of it's ancestors.</text>
+		<description>4.3 (N4)  When a component type extends another component type, a component type namespace includes all the identifiers in the namespaces of its ancestors.</description>
 	</problem>
 	
 	<problem id="P43L3" category="ru.ispras.masiw.plugin.aadl.problem">
