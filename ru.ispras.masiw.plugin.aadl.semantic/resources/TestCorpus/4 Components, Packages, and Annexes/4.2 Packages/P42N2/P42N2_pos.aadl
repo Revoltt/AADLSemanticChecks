@@ -1,0 +1,11 @@
+package P1
+public
+	data d1
+	end d1;
+end P1;
+
+package P1
+private
+	data d2
+	end d2;
+end P1;

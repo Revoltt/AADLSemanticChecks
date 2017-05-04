@@ -1,0 +1,16 @@
+package P82L3_pos
+public
+	feature group g1
+		features
+			x: in feature;
+	end g1;
+	
+	feature group g2
+		features
+			y: out feature;
+		inverse of g1
+	end g2;
+	
+	feature group g3 extends g2
+	end g3;
+end P82L3_pos;

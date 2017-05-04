@@ -1,0 +1,15 @@
+package P87C1_pos
+public
+	processor p1
+		features
+			x: requires bus access;
+	end p1;
+	
+	bus d
+	end d;
+	
+	processor p2 extends p1
+		features
+			x: refined to requires bus access d;
+	end p2;
+end P87C1_pos;

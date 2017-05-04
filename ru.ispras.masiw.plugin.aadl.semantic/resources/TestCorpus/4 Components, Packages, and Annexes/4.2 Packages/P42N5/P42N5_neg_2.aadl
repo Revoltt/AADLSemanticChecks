@@ -1,0 +1,10 @@
+package P1
+public
+	data d
+	end d;
+end P1;
+
+package P2
+public
+	renames P1::d;
+end P2;

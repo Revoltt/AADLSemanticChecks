@@ -1,0 +1,17 @@
+package P12N5_pos2
+public
+	process p
+	end p;
+	
+	data d
+		requires modes 
+			z: mode;
+	end d;
+		
+	process implementation p.i
+		subcomponents
+			d: data d;
+		modes
+			z: initial mode;
+	end p.i;
+end P12N5_pos2;

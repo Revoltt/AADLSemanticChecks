@@ -1,0 +1,15 @@
+package P85L3_pos
+public
+	data d
+	end d;
+	
+	subprogram p1
+		features
+			x: in parameter;
+	end p1;
+	
+	subprogram p2 extends p1
+		features
+			x: refined to in parameter {Source_Name => 'Example';};
+	end p2;
+end P85L3_pos;

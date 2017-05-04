@@ -1,0 +1,9 @@
+package p54c2bad
+public
+	thread t
+		properties
+			Dispatch_Protocol => periodic;
+			-- property period then should be defined
+			Period => 15 ms;
+	end t;
+end p54c2bad;

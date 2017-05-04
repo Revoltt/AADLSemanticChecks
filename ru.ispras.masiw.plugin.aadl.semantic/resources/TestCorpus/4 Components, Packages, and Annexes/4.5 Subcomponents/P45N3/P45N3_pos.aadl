@@ -1,0 +1,13 @@
+package P
+public
+	system s
+	end s;
+	
+	data d
+	end d;
+	
+	system implementation s.i
+		subcomponents
+			x: data d;
+	end s.i;
+end P;

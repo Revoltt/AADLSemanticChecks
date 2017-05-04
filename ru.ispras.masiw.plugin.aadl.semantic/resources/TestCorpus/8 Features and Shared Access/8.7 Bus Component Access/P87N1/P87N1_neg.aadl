@@ -1,0 +1,8 @@
+package P87N1_neg
+public
+	processor p
+		features
+			x: in feature;
+			x: provides bus access;
+	end p;
+end P87N1_neg;

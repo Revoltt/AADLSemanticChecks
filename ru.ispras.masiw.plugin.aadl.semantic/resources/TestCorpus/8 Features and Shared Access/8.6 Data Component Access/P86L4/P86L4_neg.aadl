@@ -1,0 +1,12 @@
+package P86L4_neg
+public
+	process p1
+		features
+			x: in feature;
+	end p1;
+	
+	process p2 extends p1
+		features
+			x: refined to requires data access;
+	end p2;
+end P86L4_neg;

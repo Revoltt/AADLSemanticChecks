@@ -1,0 +1,19 @@
+package P82N3_neg
+public
+	data d
+	end d;
+	
+	feature group g
+		prototypes
+			x: data d;
+		features
+			y: in data port d;		
+	end g;
+	
+	feature group g1 extends g
+		prototypes
+			y: data d;
+		features
+			x: out feature;
+	end g1;
+end P82N3_neg;

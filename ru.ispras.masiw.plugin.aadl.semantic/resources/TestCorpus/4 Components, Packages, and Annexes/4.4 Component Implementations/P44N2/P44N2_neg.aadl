@@ -1,0 +1,19 @@
+package P1
+public
+	system s
+	end s;
+	
+	system implementation s.i
+	end s.i;
+	
+	system implementation s.i
+	end s.i;
+end P1;
+
+PACKAGE P2
+PUBLIC
+	WITH P1;
+	S RENAMES SYSTEM P1::S;
+	SYSTEM IMPLEMENTATION S.I
+	END S.I;
+END P2;

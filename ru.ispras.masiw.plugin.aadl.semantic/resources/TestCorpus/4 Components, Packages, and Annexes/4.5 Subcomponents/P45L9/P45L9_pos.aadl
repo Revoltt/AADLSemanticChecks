@@ -1,0 +1,47 @@
+package p
+	public
+		abstract Triple
+			features
+				input: in data port;
+				output: out data port;
+		end Triple;
+		
+		abstract implementation Triple.impl
+			subcomponents
+				MyProcess: process Calculate [3] (Calculate.i1, Calculate.i2, Calculate.i3);
+				MyVoter: abstract Voter;
+			connections
+				extinput: port input -> MyProcess.input
+					{ Connection_Pattern => ((One_To_All, Next)); };
+				tovoter: port MyProcess.output -> MyVoter.input
+					{ Connection_Pattern => ((One_To_One, Next)); };
+				extoutput: port MyVoter.output -> output;
+		end Triple.impl;
+		
+		process Calculate
+			features
+				input: in data port;
+				output: out data port;
+		end Calculate;
+		
+		process implementation Calculate.i1
+			properties
+				Code_Size => 8 Bytes;
+		end Calculate.i1;
+		
+		process implementation Calculate.i2
+			properties
+				Code_Size => 9 Bytes;
+		end Calculate.i2;
+		
+		process implementation Calculate.i3
+			properties
+				Code_Size => 10 Bytes;
+		end Calculate.i3;
+		
+		abstract Voter
+			features
+				input: in data port [3];
+				output: out data port;
+		end Voter;
+end p;

@@ -1,0 +1,7 @@
+package P1
+public
+	x renames data d;
+	y renames data P1::d;
+	data d
+	end d;
+end P1;

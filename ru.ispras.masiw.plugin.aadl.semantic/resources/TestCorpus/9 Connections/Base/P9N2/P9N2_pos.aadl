@@ -1,0 +1,35 @@
+package P9N2_pos
+public
+	feature group RequestResponse
+		features
+			request: out event port;
+			response: in event port;
+	end RequestResponse;
+	
+	thread ClientThread
+		features
+			request: out event port;
+			response: in event port;
+	end ClientThread;
+	
+	process ClientProc
+		features
+			interface: feature group RequestResponse;
+	end ClientProc;
+	
+	process implementation ClientProc.Imp
+		subcomponents
+			clientThread: thread ClientThread;
+		connections
+			c_request: port clientThread.request -> interface.request;
+			c_response: port interface.response -> clientThread.response;
+	end ClientProc.Imp;
+	
+	process implementation ClientProc.Impnew extends ClientProc.Imp
+		connections
+			c_request: refined to port in modes(x);
+			c_response: refined to port in modes(x);
+		modes
+			x: mode;
+	end ClientProc.Impnew;
+end P9N2_pos;

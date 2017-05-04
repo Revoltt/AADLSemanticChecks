@@ -1,0 +1,25 @@
+package p
+public
+	data d end d;
+	thread t end t;
+	abstract a end a;
+	system s end s;
+	
+	system implementation s.i
+		subcomponents
+			x: data d;
+			y: abstract a;
+	end s.i;
+	
+	data implementation d.i
+	end d.i;
+	
+	thread implementation t.i
+	end t.i;
+	
+	system implementation s.j extends s.i
+		subcomponents
+			x: refined to data d.i;
+			y: refined to data d;
+	end s.j;
+end p;

@@ -1,0 +1,28 @@
+package P65L5_neg
+public
+	data d1
+	end d1;
+	
+	data d2
+	end d2;
+	
+	subprogram p
+	end p;
+	
+	virtual bus b
+		features
+			signal: in data port d1;
+			result: out data port d2;
+			result2: out data port d2;
+	end b;
+	
+	virtual bus implementation b.i
+		calls main: {
+			x: subprogram p;	
+		};
+		connections
+			c1: data result -> result2;
+		flows
+			f1: flow path signal -> result;		
+	end b.i;
+end P65L5_neg;

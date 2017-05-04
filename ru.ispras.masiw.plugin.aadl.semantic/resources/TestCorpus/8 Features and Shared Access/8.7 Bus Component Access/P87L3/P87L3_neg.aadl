@@ -1,0 +1,17 @@
+package P87L3_neg
+public
+	processor p1
+		features
+			x: provides bus access;
+			y: requires bus access;
+	end p1;
+	
+	data d
+	end d;
+	
+	processor p2 extends p1
+		features
+			x: refined to requires bus access d;
+			y: refined to provides bus access d;
+	end p2;
+end P87L3_neg;

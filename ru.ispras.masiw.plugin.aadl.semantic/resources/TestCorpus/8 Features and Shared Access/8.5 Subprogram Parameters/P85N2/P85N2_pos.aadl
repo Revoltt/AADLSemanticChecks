@@ -1,0 +1,17 @@
+package P85N2_pos
+public
+	data d
+	end d;
+	
+	subprogram p1
+		features
+			x: in parameter d;
+			y: in feature;
+	end p1;
+	
+	subprogram p2 extends p1
+		features
+			x: refined to in parameter d;
+			y: refined to in parameter;
+	end p2;
+end P85N2_pos;

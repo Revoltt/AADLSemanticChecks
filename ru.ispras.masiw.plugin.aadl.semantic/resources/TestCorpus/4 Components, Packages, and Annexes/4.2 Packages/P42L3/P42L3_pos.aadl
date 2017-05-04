@@ -1,0 +1,26 @@
+package P1
+public
+	thread t1 end t1;
+	thread t2 end t2;
+	
+	thread implementation t2.i
+	end t2.i;
+	
+	process p1
+	end p1;
+	
+	process implementation p1.i
+		modes
+			none;
+		properties
+			Code_Size => 100 KByte;
+	end p1.i;
+private
+	thread implementation t1.i
+	end t1.i;
+	
+	process implementation p1.i
+		subcomponents
+			y: thread t1.i;
+	end p1.i;
+end P1;

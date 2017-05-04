@@ -1,0 +1,11 @@
+package p1
+public
+	subprogram p
+	end p;
+	
+	process t
+		calls main: {
+			x: subprogram p;	
+		};
+	end t;
+end p1;

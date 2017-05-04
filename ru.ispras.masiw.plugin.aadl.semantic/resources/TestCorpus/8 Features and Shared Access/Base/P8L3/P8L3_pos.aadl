@@ -1,0 +1,21 @@
+package P8L3_pos
+public
+	data b
+	end b;
+	
+	thread p
+		features
+			x: requires data access b[5];
+	end p;
+	
+	device d
+		features
+			x: in data port b[3];
+	end d;
+	
+	processor pr
+		features
+			x: out data port b[];
+	end pr;
+	
+end P8L3_pos;

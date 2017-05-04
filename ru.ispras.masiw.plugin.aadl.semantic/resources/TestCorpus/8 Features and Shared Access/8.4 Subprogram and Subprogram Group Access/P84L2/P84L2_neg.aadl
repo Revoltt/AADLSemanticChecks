@@ -1,0 +1,10 @@
+package P84L2_neg
+public
+	data d
+	end d;
+	
+	process p1
+		features
+			x: provides subprogram group access d;
+	end p1;
+end P84L2_neg;

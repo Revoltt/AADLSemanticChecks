@@ -1,0 +1,21 @@
+package p
+public
+	thread Collect_Samples
+		features
+			Input_Sample : in data port;
+			Output_Average : out data port;
+		modes
+			m1: initial mode;
+			m2: mode;
+			m3: mode;
+		annex Error_Model1 {**
+			Model1 => Transient_Fault_Model;
+			Occurrence => poisson 10e-4 applies to Transient_Fault;
+		**} in modes (m1); -- in_modes is not allowed?
+	
+		annex Error_Model1 {**
+			Model2 => Transient_Fault_Model;
+			Occurrence => poisson 10e-3 applies to Transient_Fault;
+		**} in modes (m1);
+	end Collect_Samples;
+end p;

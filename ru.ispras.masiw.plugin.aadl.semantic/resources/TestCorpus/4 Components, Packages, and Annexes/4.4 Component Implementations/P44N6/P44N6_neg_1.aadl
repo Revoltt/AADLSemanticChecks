@@ -1,0 +1,20 @@
+package P1
+public
+	system s1
+	end s1;
+	
+	system s2 extends s1
+	end s2;
+	
+	system s3 extends s2
+	end s3;
+	
+	system implementation s1.i
+	end s1.i;
+	
+	system implementation s2.i extends s3.i
+	end s2.i;
+	
+	system implementation s3.i extends s1.i
+	end s3.i;
+end P1;

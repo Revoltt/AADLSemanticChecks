@@ -1,0 +1,23 @@
+package P91L4_pos
+public
+	system s
+	end s;
+	
+	process t1
+		features
+			x: in feature;
+	end t1;
+	
+	process t2
+		features
+			x: out feature;
+	end t2;
+	
+	system implementation s.i
+		subcomponents
+			t1: process t2;
+			t2: process t1;
+		connections
+			c: feature t1.x -> t2.x;
+	end s.i;
+end P91L4_pos;

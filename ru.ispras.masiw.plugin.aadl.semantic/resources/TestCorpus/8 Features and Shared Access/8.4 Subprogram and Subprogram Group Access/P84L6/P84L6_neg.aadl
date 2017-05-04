@@ -1,0 +1,26 @@
+package P84L6_neg
+public
+	process p1
+		features
+			x: provides subprogram access;
+			y: requires subprogram access;
+			z: provides subprogram group access;
+			w: requires subprogram group access;
+			
+	end p1;
+	
+	subprogram d
+	end d;
+	
+	subprogram group g
+	end g;
+	
+	process p2 extends p1
+		features
+			x: refined to requires subprogram access d;
+			y: refined to provides subprogram access d;
+			
+			z: refined to requires subprogram group access g;
+			w: refined to provides subprogram group access g;
+	end p2;
+end P84L6_neg;

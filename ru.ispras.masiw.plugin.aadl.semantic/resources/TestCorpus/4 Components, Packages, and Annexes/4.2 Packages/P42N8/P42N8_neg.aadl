@@ -1,0 +1,15 @@
+PACKAGE P1
+PUBLIC
+	WITH P2;
+	WITH Programming_Properties;
+	SYSTEM S
+		PROPERTIES
+			P2::N => 1;
+			Programming_Properties::Source_Text => ("s.c");
+		END S;
+END P1;
+
+PACKAGE P2
+PUBLIC
+
+END P2;

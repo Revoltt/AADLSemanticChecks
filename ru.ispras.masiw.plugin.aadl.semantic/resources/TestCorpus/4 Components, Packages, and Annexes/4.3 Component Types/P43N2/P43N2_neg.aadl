@@ -1,0 +1,19 @@
+PACKAGE P1
+PUBLIC
+	DATA D 
+	END D;
+	SYSTEM S
+		PROTOTYPES
+			X : DATA D;
+		FEATURES
+			X : IN DATA PORT D;
+			Y : OUT DATA PORT D;
+			E : IN EVENT PORT;
+		FLOWS
+			X : FLOW PATH X -> Y;
+		MODES
+			X : INITIAL MODE;
+			Y : MODE;
+			X : X -[ E ]-> Y;
+	END S;
+END P1;

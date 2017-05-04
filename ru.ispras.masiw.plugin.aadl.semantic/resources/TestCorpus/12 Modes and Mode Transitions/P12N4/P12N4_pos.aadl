@@ -1,0 +1,12 @@
+package P12N4_pos
+public
+	process p	
+	end p;
+	
+	process implementation p.i
+		subcomponents
+			d: data in modes(x);
+		modes
+			x: initial mode;
+	end p.i;
+end P12N4_pos;

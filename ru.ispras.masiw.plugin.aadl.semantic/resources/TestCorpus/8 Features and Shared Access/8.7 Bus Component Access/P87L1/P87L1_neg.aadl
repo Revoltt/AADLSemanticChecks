@@ -1,0 +1,10 @@
+package P87L1_neg
+public
+	thread d
+	end d;
+	
+	processor p1
+		features
+			y: requires bus access d;
+	end p1;
+end P87L1_neg;

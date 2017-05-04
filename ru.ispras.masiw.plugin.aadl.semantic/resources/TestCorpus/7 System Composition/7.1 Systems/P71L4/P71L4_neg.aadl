@@ -1,0 +1,14 @@
+package P71L4_neg
+public
+	system s
+	end s;
+	
+	subprogram p
+	end p;
+	
+	system implementation s.i
+		calls main: {
+			x: subprogram p;
+		}
+	end s.i;
+end P71L4_neg;

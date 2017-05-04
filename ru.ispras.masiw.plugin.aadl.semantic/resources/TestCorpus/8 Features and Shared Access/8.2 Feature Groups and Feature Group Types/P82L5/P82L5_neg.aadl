@@ -1,0 +1,22 @@
+package P82L5_neg
+public
+	data d
+	end d;
+	
+	feature group g1
+		features
+			y: in feature;
+	end g1;
+	
+	feature group g2
+		features
+			x: out feature;
+		inverse of g1
+	end g2;
+	
+	feature group g3 extends g2
+		features
+			z: out data port d;
+			-- adds features but does not specify inverse
+	end g3;
+end P82L5_neg;

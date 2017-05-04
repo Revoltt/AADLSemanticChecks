@@ -1,0 +1,12 @@
+package p1
+public
+	process p
+	end p;
+	
+	process implementation p.i
+		modes
+		flows
+		properties
+			Code_Size => 100 KByte;
+	end p.i;		
+end p1;

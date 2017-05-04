@@ -1,0 +1,10 @@
+package P12N4_neg2
+public
+	process p	
+	end p;
+	
+	process implementation p.i
+		subcomponents
+			d: data in modes(x);
+	end p.i;
+end P12N4_neg2;

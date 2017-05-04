@@ -1,0 +1,15 @@
+package P8N1
+public
+	data d1
+	end d1;
+	
+	data d2
+	end d2;
+	
+	process p
+		features
+			x: in data port d1;
+			x: out data port d2;
+	end p;
+	
+end P8N1;

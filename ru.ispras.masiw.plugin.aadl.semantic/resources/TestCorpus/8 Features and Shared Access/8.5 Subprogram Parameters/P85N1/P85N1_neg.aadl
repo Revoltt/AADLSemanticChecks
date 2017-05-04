@@ -1,0 +1,8 @@
+package P85N1_neg
+public
+	subprogram p
+		features
+			x: in parameter;
+			x: in event port;
+	end p;
+end P85N1_neg;

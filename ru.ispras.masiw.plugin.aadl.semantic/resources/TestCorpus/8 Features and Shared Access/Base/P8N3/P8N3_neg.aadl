@@ -1,0 +1,16 @@
+package P8N3_neg
+public
+	data d
+	end d;
+	
+	process p
+		features
+			x: in data port d;
+	end p;
+	
+	process p1 extends p 
+		features
+			y: refined to in data port d;
+	end p1;
+	
+end P8N3_neg;

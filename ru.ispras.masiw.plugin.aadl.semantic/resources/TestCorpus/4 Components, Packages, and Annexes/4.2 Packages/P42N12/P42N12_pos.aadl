@@ -1,0 +1,11 @@
+package P1
+public
+	with P2;
+	x renames data P2::d;
+end P1;
+
+package P2
+public
+	data d
+	end d;
+end P2;

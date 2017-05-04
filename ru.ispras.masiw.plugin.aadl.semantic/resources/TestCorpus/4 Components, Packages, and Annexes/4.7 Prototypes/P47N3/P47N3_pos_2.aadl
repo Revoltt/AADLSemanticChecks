@@ -1,0 +1,23 @@
+package P3
+public
+	with p2;
+	process t
+		prototypes
+			p1: data;
+			p2: abstract;
+	end t;
+	
+	system s
+	end s;
+	
+	system implementation s.i
+		subcomponents
+			sys: process t(p1 => data p2::d);
+	end s.i;
+end P3;
+
+package p2
+public
+	data d
+	end d;
+end p2;

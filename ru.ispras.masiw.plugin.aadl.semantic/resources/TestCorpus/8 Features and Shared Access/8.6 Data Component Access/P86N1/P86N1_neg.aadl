@@ -1,0 +1,8 @@
+package P86N1_neg
+public
+	process p
+		features
+			x: in feature;
+			x: provides data access;
+	end p;
+end P86N1_neg;

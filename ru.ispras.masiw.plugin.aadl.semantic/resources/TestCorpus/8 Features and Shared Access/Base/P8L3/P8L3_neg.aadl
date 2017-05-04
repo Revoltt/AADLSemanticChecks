@@ -1,0 +1,16 @@
+package P8L3_neg
+public
+	data b
+	end b;
+	
+	data p1
+		features
+			x: requires data access b[5];
+	end p1;
+	
+	process p2
+		features
+			x: requires data access b[5];
+	end p2;
+	
+end P8L3_neg;

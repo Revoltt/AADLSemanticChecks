@@ -1,0 +1,18 @@
+package p1
+public
+	system s
+		features
+			e0: in event port;
+			e1: in event port;
+		modes
+			m0: initial mode;
+			m1: mode;
+			m2: mode;
+	end s;
+	
+	system implementation s.i
+		modes
+			t0: m0 -[e0]-> m1;
+			t1: m0 -[e1]-> m2; 
+	end s.i;
+end p1;

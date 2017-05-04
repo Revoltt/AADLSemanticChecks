@@ -1,0 +1,14 @@
+-- questionable
+package P82L1_neg2
+public
+		feature group g
+		features
+			y: in feature;
+	end g;
+	
+	feature group g1
+		features
+			x: out feature;
+		inverse of g
+	end g1;
+end P82L1_neg2;

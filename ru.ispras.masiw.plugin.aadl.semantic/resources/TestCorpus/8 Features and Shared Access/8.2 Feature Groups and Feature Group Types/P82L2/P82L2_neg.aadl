@@ -1,0 +1,13 @@
+package P82L2_neg
+public
+	feature group g1
+	end g1;
+	
+	feature group g2
+		inverse of g1
+	end g2;
+	
+	feature group g3
+		inverse of g2
+	end g3;
+end P82L2_neg;

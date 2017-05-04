@@ -1,0 +1,25 @@
+package p
+public
+	system s
+	end s;
+	
+	system implementation s.j
+		subcomponents
+			x: data d1[2][];
+	end s.j;
+	
+	data d1
+		properties
+			Data_Size => 16 Bytes;
+	end d1;
+	
+	system implementation s.i extends s.j -- bad dimension refinement
+		subcomponents
+			x: refined to data d1[3][];
+	end s.i;
+	
+	system implementation s.k extends s.j -- good dimension refinement
+		subcomponents
+			x: refined to data d1[2][3];
+	end s.k;
+end p;

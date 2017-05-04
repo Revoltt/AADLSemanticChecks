@@ -1,0 +1,18 @@
+package p
+public
+	data d
+		properties
+			Data_Size => 16 Bytes;
+	end d;
+	
+	data set_d
+		properties
+			Data_Size => 64 Bytes;
+	end set_d;
+	
+	data implementation set_d.i
+		subcomponents
+			data_set1: data d[3];
+			data_set2: process d;
+	end set_d.i;
+end p;

@@ -1,0 +1,22 @@
+package p1
+public
+	system s
+		features
+			e: in event port;
+		requires modes
+			m0: initial mode;
+	end s;
+	
+	system implementation s.i
+		modes
+			m1: mode;
+	end s.i;
+	
+	system s2 extends s
+	end s2;
+	
+	system implementation s2.i
+		modes
+			m1: mode;
+	end s2.i;
+end p1;

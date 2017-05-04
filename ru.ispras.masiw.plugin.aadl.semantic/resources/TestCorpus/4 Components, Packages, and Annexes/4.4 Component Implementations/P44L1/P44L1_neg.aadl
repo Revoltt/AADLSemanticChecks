@@ -1,0 +1,8 @@
+package p1
+public
+	process pr1
+	end pr1;
+	
+	process implementation pr1.i
+	end pr1.j;
+end p1;

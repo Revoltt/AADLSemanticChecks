@@ -1,0 +1,17 @@
+package P86N2_pos
+public
+	process p1
+		features
+			x: feature;
+			y: requires data access;
+	end p1;
+	
+	data d
+	end d;
+	
+	process p2 extends p1
+		features
+			x: refined to provides data access;
+			y: refined to requires data access;
+	end p2;
+end P86N2_pos;

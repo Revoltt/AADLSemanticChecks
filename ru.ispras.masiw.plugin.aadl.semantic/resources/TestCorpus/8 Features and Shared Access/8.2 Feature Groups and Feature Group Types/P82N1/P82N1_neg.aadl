@@ -1,0 +1,9 @@
+package P82N1_neg
+public
+	data d
+	end d;
+	
+	feature group d
+	end d;
+	
+end P82N1_neg;

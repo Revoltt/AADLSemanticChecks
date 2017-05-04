@@ -1,0 +1,15 @@
+package P12L3_neg
+public
+	--non-deterministic transition function
+	process p
+		features
+			t1: in event data port;
+			t2: in event data port;
+		modes
+			x: initial mode;
+			y: mode;
+			z: mode;
+			x -[t1]-> y;
+			x -[t1]-> z;
+	end p;
+end P12L3_neg;

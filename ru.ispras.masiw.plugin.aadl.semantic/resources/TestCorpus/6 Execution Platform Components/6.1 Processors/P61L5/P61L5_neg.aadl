@@ -1,0 +1,14 @@
+package p
+public
+	subprogram p
+	end p;
+	
+	processor t
+	end t;
+	
+	processor implementation t.i
+		calls main: {
+			x: subprogram p;	
+		};
+	end t.i;
+end p;

@@ -1,0 +1,10 @@
+package P84N3_pos
+public
+	subprogram d1
+	end d1;
+	
+	process p1
+		features
+			x: requires subprogram access d1;
+	end p1;
+end P84N3_pos;

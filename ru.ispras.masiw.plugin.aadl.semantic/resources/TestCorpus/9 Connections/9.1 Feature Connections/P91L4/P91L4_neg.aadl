@@ -1,0 +1,18 @@
+package P91L4_neg
+public
+	system s
+	end s;
+	
+	process t
+		features
+			x: in feature;
+	end t;
+	
+	system implementation s.i
+		subcomponents
+			t1: process t;
+			t2: process t;
+		connections
+			c: feature t1.x -> t2.x;
+	end s.i;
+end P91L4_neg;

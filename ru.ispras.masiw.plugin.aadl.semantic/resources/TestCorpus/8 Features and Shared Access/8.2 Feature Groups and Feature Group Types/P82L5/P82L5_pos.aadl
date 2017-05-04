@@ -1,0 +1,24 @@
+package P82L5_pos
+public
+	data d
+	end d;
+	
+	feature group g1
+		features
+			y: in feature;
+	end g1;
+	
+	feature group g2
+		features
+			x: out feature;
+		inverse of g1
+	end g2;
+	
+	feature group g3 extends g2
+		features
+			w: out feature;
+			z: out data port d;
+			-- osate prints error
+		inverse of g1
+	end g3;
+end P82L5_pos;

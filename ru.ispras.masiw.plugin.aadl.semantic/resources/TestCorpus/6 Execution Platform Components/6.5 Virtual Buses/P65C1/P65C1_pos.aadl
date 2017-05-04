@@ -1,0 +1,13 @@
+package P65C1_pos
+public
+	bus b
+	end b;
+	
+	bus implementation b.i
+		subcomponents
+			c: virtual bus vb;
+	end b.i;
+	
+	virtual bus vb
+	end vb;
+end P65C1_pos;

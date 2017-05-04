@@ -1,0 +1,13 @@
+package P1
+public
+	data d
+	end d;
+end P1;
+
+package P2
+public
+	with P1;
+	renames P1::all;
+	data implementation d.i
+	end d.i;
+end P2;

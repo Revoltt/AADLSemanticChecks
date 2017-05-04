@@ -1,0 +1,8 @@
+package P1
+public
+	thread t
+	end t;
+	
+	process t
+	end t;
+end P1;

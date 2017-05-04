@@ -1,0 +1,29 @@
+package P9N1_neg2
+public
+	feature group RequestResponse
+		features
+			request: out event port;
+			response: in event port;
+	end RequestResponse;
+	
+	thread ClientThread
+		features
+			request: out event port;
+			response: in event port;
+	end ClientThread;
+	
+	process ClientProc
+		features
+			interface: feature group RequestResponse;
+	end ClientProc;
+	
+	process implementation ClientProc.Imp
+		subcomponents
+			clientThread: thread ClientThread;
+		connections
+			c_request: port clientThread.request -> interface.request in modes (x);
+			c_request: port interface.response -> clientThread.response;
+		modes
+			x: mode;
+	end ClientProc.Imp;
+end P9N1_neg2;

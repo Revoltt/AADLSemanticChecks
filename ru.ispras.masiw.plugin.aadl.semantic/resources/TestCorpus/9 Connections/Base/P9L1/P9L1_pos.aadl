@@ -1,0 +1,58 @@
+-- from AADL v2 standart errata
+package P9L1_pos
+public
+	system SysPort
+		features
+			outp: out data port;
+			inp: in data port;
+	end SysPort;
+	
+	feature group FG
+	end FG;
+	
+	system SysGroup
+		features
+			outg: feature group FG;
+			ing: feature group inverse of FG;
+	end SysGroup;
+	
+	system Sys
+	end Sys;
+	
+	system implementation Sys.Parent
+	subcomponents
+		sysAP: system SysPort;
+		sysBP: system SysPort;
+		sysAG: system SysGroup;
+		sysBG: system SysGroup;
+	connections
+		c_abp: port sysAP.outp -> sysBP.inp;
+		c_abg: feature group sysAG.outg <-> sysBG.ing;
+	end Sys.Parent;
+	
+	system implementation Sys.Child extends Sys.Parent
+	subcomponents
+		sysCP: system SysPort;
+		sysCG: system SysGroup;
+	end Sys.Child;
+	
+	system implementation Sys.Refine1 extends Sys.Child
+		connections
+			c_abp: refined to port {Latency => 200ms .. 200ms;};
+	end Sys.Refine1;
+	
+	system implementation Sys.Refine2 extends Sys.Child
+		connections
+		    c_abp: refined to port sysAP.outp <-> sysBP.inp;
+	end Sys.Refine2;
+	
+	system implementation Sys.Refine3 extends Sys.Child
+		connections
+		    c_abp: refined to port sysAP.outp -> sysCP.inp;
+	end Sys.Refine3;
+	
+	system implementation Sys.Refine4 extends Sys.Child
+		connections
+		    c_abg: refined to port sysAG.outg <-> sysCG.ing;
+	end Sys.Refine4;	
+end P9L1_pos;

@@ -1,0 +1,8 @@
+package p1
+public
+	thread t1
+	end t1;
+	
+	thread t2 extends t1
+	end t2;
+end p1;

@@ -1,0 +1,12 @@
+package P87L4_neg
+public
+	processor p1
+		features
+			x: in feature;
+	end p1;
+	
+	processor p2 extends p1
+		features
+			x: refined to requires bus access;
+	end p2;
+end P87L4_neg;

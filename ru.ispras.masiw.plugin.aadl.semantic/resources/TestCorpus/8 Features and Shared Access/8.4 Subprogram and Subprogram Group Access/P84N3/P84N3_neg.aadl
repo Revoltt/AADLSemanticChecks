@@ -1,0 +1,7 @@
+package P84N3_neg
+public
+	process p1
+		features
+			x: requires subprogram access d1;
+	end p1;
+end P84N3_neg;

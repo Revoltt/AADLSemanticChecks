@@ -1,0 +1,11 @@
+package P1
+public
+	process p1
+	end p1;
+end P1;
+
+package P2
+public
+	with p4;
+	t renames thread p1;
+end P2;

@@ -1,0 +1,7 @@
+package P54C1_neg
+public
+	
+	virtual bus vb
+	end vb;
+	
+end P54C1_neg;

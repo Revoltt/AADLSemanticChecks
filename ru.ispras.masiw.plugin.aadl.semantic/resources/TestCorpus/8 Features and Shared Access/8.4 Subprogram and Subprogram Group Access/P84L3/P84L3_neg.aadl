@@ -1,0 +1,12 @@
+package P84L3_neg
+public
+	process p1
+		features
+			x: in feature;
+	end p1;
+	
+	process p2 extends p1
+		features
+			x: refined to requires subprogram access;
+	end p2;
+end P84L3_neg;

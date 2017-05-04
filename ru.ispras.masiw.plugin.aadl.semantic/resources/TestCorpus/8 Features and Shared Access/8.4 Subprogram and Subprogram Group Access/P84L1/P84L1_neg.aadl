@@ -1,0 +1,10 @@
+package P84L1_neg
+public
+	data d
+	end d;
+	
+	process p1
+		features
+			x: requires subprogram access d;
+	end p1;
+end P84L1_neg;

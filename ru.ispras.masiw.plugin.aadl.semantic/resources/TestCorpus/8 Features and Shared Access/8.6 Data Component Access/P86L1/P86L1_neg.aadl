@@ -1,0 +1,10 @@
+package P86L1_neg
+public
+	thread d
+	end d;
+	
+	process p1
+		features
+			y: requires data access d;
+	end p1;
+end P86L1_neg;

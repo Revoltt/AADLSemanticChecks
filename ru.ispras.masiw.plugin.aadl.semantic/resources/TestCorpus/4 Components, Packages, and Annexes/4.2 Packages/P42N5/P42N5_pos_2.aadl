@@ -1,0 +1,14 @@
+package P1
+public
+	data d1
+	end d1;
+end P1;
+
+package P2
+public
+	with P1;
+private
+	renames P1::all;
+	data d2 extends d1
+	end d2;
+end P2;

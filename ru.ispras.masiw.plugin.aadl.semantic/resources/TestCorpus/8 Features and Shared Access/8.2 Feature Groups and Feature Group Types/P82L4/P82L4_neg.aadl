@@ -1,0 +1,14 @@
+package P82L4_neg
+public
+	feature group g3
+	end g3;
+	
+	feature group g1
+		features
+			x: in feature;
+	end g1;
+	
+	feature group g2 extends g3
+		inverse of g1
+	end g2;
+end P82L4_neg;

@@ -1,0 +1,46 @@
+package P83L1_pos
+public
+	data d
+	end d;
+
+--	osate says here is error	
+--	subprogram p1
+--		features
+--			x: in data port d;
+--	end p1;
+	
+	thread p2
+		features
+			x: in data port d;
+	end p2;
+	
+	thread group p3
+		features
+			x: in data port d;
+	end p3;
+	
+	process p4
+		features
+			x: in data port d;
+	end p4;
+	
+	system p5
+		features
+			x: in data port d;
+	end p5;
+	
+	processor p6
+		features
+			x: in data port d;	
+	end p6;
+	
+	virtual processor p7
+		features
+			x: in data port d;
+	end p7;
+	
+	device p8
+		features
+			x: in data port d;
+	end p8;
+end P83L1_pos;

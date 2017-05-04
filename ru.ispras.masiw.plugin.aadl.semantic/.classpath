@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="/ru.ispras.masiw.plugin.libs/lib/cache4j_0.4.jar"/>
+	<classpathentry kind="lib" path="/ru.ispras.masiw.plugin.libs/lib/commons-collections4-4.0.jar" sourcepath="E:/JAVA/lib/commons-collections4-4.0/commons-collections4-4.0-sources.jar"/>
+	<classpathentry kind="lib" path="/ru.ispras.masiw.plugin.libs/lib/jscience.jar" sourcepath="E:/JAVA/lib/JScience/jscience-4.3.1-src.zip"/>
+	<classpathentry kind="lib" path="/ru.ispras.masiw.plugin.libs/lib/ru.ispras.masiw.scheduling.interfaces.jar" sourcepath="/ru.ispras.masiw.scheduling.interfaces"/>
+	<classpathentry kind="lib" path="/ru.ispras.masiw.plugin.libs/lib/ru.ispras.masiw.util.jar" sourcepath="/ru.ispras.masiw.util"/>
+	<classpathentry kind="lib" path="/ru.ispras.masiw.plugin.libs/lib/ru.ispras.utils.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

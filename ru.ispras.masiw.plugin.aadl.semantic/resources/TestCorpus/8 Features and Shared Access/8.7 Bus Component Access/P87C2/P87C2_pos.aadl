@@ -1,0 +1,17 @@
+package P87C2_pos
+public
+	processor p1
+		features
+			x: in feature;
+			y: out feature;
+	end p1;
+	
+	bus d
+	end d;
+	
+	processor p2 extends p1
+		features
+			x: refined to requires bus access d{Access_Right => read_only;};
+			y: refined to requires bus access d{Access_Right => write_only;};
+	end p2;
+end P87C2_pos;

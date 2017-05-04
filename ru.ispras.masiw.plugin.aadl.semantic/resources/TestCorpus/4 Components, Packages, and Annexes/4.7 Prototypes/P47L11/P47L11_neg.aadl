@@ -1,0 +1,13 @@
+package p
+public
+	abstract component
+		prototypes
+			l: in feature;
+		features
+			k: in feature l; -- why does it not work? example from standard
+			s: out feature;
+	end component;
+	
+	abstract c extends component(l => out feature s)
+	end c;
+end p;

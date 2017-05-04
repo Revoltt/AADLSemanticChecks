@@ -1,0 +1,11 @@
+-- partially not checked
+package P12N1_neg
+public
+	process p
+		features
+			x: in feature;
+		modes
+			x: initial mode;
+			y: mode;
+	end p;
+end P12N1_neg;

@@ -1,0 +1,11 @@
+package P12N2_pos
+public
+	process p
+		features
+			trigger: in event port;
+		modes
+			x: initial mode;
+			y: mode;
+			x -[trigger]-> y;
+	end p;
+end P12N2_pos;

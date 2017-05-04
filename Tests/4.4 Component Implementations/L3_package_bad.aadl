@@ -1,8 +1,0 @@
-package p13
-public
-	thread t
-	end t;
-	
-	subprogram implementation t.i
-	end t.i;
-end p13;

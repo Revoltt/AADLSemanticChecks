@@ -1,0 +1,19 @@
+package P91L2_pos
+public
+	system s
+		features
+			x: out feature;
+	end s;
+	
+	process t
+		features
+			x: out feature;
+	end t;
+	
+	system implementation s.i
+		subcomponents
+			t1: process t;
+		connections
+			c: feature t1.x -> x;
+	end s.i;
+end P91L2_pos;

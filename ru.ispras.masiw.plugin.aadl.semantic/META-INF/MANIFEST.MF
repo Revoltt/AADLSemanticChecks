@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Plugin
+Bundle-SymbolicName: ru.ispras.masiw.plugin.aadl.semantic
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: ru.ispras.masiw.plugin.aadl.semantic.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ ru.ispras.masiw.plugin.aadl,
+ ru.ispras.eclipse.utils,
+ org.eclipse.emf.ecore
+Bundle-ActivationPolicy: lazy
+Export-Package: ru.ispras.masiw.plugin.aadl.semantic,
+ ru.ispras.masiw.plugin.aadl.semantic.core,
+ ru.ispras.masiw.plugin.aadl.semantic.updated,
+ semantic.alternative
+Import-Package: ru.ispras.antlr.v4.editing.core.runtime

@@ -1,0 +1,7 @@
+package P87N3_neg
+public
+	processor p1
+		features
+			y: requires bus access d;
+	end p1;
+end P87N3_neg;

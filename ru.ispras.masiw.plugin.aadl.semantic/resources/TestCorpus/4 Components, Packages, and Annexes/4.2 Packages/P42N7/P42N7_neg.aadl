@@ -1,0 +1,4 @@
+package P1
+public
+	with P3;
+end P1;

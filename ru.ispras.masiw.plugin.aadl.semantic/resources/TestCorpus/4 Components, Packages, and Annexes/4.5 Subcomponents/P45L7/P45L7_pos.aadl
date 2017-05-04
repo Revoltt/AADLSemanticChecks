@@ -1,0 +1,15 @@
+package p
+public
+	data s
+		properties
+			Data_Size => 8 Bytes;
+	end s;
+	
+	data s_set
+	end s_set;
+	
+	data implementation s_set.i
+		subcomponents
+			d: data s[];
+	end s_set.i;
+end p;

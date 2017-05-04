@@ -1,0 +1,23 @@
+package p1
+	public
+	
+	data d
+	end d;
+	
+	subprogram s
+	end s;
+	
+	thread t1
+		prototypes
+			p1: data;
+			p2: subprogram;
+	end t1;
+	
+	thread t2 extends t1
+		(p2 => subprogram s)
+	end t2;
+	
+	thread t3 extends t2
+		(p1 => data d)
+	end t3;
+end p1;

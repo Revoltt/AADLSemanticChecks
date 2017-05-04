@@ -1,0 +1,20 @@
+package p1
+public
+	abstract d
+	end d;
+	
+	process p extends d
+	end p;
+	
+	system s extends p
+	end s;
+	
+	abstract implementation d.i
+	end d.i;
+	
+	process implementation p.i extends d.i
+	end p.i;
+	
+	system implementation s.i extends p.i
+	end s.i;
+end p1;

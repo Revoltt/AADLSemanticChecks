@@ -1,0 +1,14 @@
+package p1
+public
+	subprogram p
+	end p;
+	
+	virtual processor t
+	end t;
+	
+	virtual processor implementation t.i
+		calls main: {
+			x: subprogram p;	
+		};
+	end t.i;
+end p1;

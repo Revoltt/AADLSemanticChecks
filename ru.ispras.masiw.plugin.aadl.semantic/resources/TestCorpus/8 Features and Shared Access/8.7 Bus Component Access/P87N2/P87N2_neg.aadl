@@ -1,0 +1,12 @@
+package P87N2_neg
+public
+	processor p1
+		features
+			x: in feature;
+	end p1;
+	
+	processor p2 extends p1
+		features
+			y: refined to provides bus access;
+	end p2;
+end P87N2_neg;

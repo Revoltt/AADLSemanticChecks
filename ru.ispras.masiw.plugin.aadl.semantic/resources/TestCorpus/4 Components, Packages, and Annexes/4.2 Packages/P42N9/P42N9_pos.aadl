@@ -1,0 +1,8 @@
+package P1
+private
+	data implementation d.i
+	end d.i;
+	
+	data d
+	end d;
+end P1;

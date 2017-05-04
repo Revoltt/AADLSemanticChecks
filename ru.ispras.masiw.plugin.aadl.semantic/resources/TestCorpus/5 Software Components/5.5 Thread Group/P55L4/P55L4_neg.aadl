@@ -1,0 +1,15 @@
+package P1
+public
+	subprogram weather1
+		features
+			date: in parameter date;
+			time: in parameter time;
+			result: out parameter forecast;
+	end weather1;
+	
+	thread group t
+		calls main1: {
+			weather: subprogram weather1;
+		};
+	end t;	
+end P1;

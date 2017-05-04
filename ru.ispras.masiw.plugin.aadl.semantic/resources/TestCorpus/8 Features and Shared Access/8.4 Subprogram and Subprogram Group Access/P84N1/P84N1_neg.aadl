@@ -1,0 +1,8 @@
+package P84N1_neg
+public
+	process p
+		features
+			x: in feature;
+			x: provides subprogram access;
+	end p;
+end P84N1_neg;

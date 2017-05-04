@@ -1,0 +1,8 @@
+package p
+public
+	thread t
+		features
+			other1: in event data port;
+			other2: in event data port;
+	end t;
+end p;

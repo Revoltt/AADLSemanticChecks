@@ -1,0 +1,14 @@
+package P12L2_neg
+public
+	-- warning: no initial mode
+	process p1
+		modes
+			x: mode;
+			y: mode;
+	end p1;
+	
+	process p2 extends p1
+		modes
+			z: mode;
+	end p2;
+end P12L2_neg;

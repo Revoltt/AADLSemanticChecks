@@ -1,0 +1,11 @@
+package P8N2_neg
+public
+	data d
+	end d;
+	
+	process p
+		features
+			Complete: in data port d;
+			Error: in data port d;
+	end p;
+end P8N2_neg;

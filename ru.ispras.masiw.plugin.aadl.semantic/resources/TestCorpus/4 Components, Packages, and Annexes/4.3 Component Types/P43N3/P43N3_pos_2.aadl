@@ -1,0 +1,8 @@
+PACKAGE P1
+PUBLIC
+	DATA D1
+	END D1;
+	
+	DATA D extends D1
+	END D;
+END P1;

@@ -1,0 +1,15 @@
+package P12N2_neg
+public
+	process p1
+		modes
+			x: mode;
+			y: mode;
+	end p1;
+	
+	process p
+		features
+			trigger: in event port;
+		modes
+			x -[trigger]-> y;
+	end p;
+end P12N2_neg;

@@ -1,0 +1,13 @@
+package P1
+public
+	data d1
+	end d1;
+end P1;
+
+package P2
+public
+	data d2 extends P1::d1
+	end d2;
+private
+	with P1;
+end P2;

@@ -1,0 +1,14 @@
+package P86N3_pos
+public
+	data d
+	end d;
+	
+	data implementation d.i
+	end d.i;
+	
+	process p1
+		features
+			x: provides data access d.i;
+			y: requires data access d;
+	end p1;
+end P86N3_pos;

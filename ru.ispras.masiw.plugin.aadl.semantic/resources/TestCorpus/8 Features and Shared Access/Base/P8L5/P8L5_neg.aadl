@@ -1,0 +1,17 @@
+package P8L5_neg
+public
+	data d
+	end d;
+	
+	process p
+		features
+			x: in data port d[5];
+			y: out data port d[5];
+	end p;
+	
+	process p1 extends p 
+		features
+			x: refined to in data port d[3];
+			y: refined to out data port d[5];
+	end p1;
+end P8L5_neg;

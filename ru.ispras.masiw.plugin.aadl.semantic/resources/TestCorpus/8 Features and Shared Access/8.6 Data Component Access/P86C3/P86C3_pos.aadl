@@ -1,0 +1,18 @@
+--this rule cointradicts with P86L4
+package P86C3_pos
+public
+	process p1
+		features
+			x: in feature;
+			y: out feature;
+	end p1;
+	
+	data d
+	end d;
+	
+	process p2 extends p1
+		features
+			x: refined to requires data access d{Access_Right => read_only;};
+			y: refined to requires data access d{Access_Right => write_only;};
+	end p2;
+end P86C3_pos;

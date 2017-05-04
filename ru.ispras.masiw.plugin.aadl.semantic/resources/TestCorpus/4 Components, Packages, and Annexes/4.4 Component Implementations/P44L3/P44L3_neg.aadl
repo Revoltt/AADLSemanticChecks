@@ -1,0 +1,8 @@
+package p1
+public
+	thread t
+	end t;
+	
+	subprogram implementation t.i
+	end t.i;
+end p1;

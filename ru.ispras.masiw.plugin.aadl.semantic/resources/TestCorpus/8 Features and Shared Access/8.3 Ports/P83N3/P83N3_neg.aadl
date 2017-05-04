@@ -1,0 +1,16 @@
+package P83N3_neg
+public
+	data d
+	end d;
+	
+	process p1
+		features
+			x: in feature;
+	end p1;
+	
+	process p2 extends p1
+		features
+			y: refined to in data port d1;
+	end p2;
+	
+end P83N3_neg;

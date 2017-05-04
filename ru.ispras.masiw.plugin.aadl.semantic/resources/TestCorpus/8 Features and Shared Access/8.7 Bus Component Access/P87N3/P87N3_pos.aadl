@@ -1,0 +1,14 @@
+package P87N3_pos
+public
+	bus d
+	end d;
+	
+	bus implementation d.i
+	end d.i;
+	
+	processor p1
+		features
+			x: provides bus access d.i;
+			y: requires bus access d;
+	end p1;
+end P87N3_pos;

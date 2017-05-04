@@ -1,0 +1,12 @@
+package P82N2_neg
+public
+	data d
+	end d;
+	
+	feature group g
+		prototypes
+			x: data d;
+		features
+			x: in data port d;		
+	end g;
+end P82N2_neg;

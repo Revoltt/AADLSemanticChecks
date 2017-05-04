@@ -1,0 +1,16 @@
+package P65L2_neg
+public
+	data d1
+	end d1;
+	
+	data d2
+	end d2;
+	
+	virtual bus b
+		features
+			signal: in data port d1;
+			result: out data port d2;
+		flows
+			f1: signal -> result;		
+	end b;
+end P65L2_neg;

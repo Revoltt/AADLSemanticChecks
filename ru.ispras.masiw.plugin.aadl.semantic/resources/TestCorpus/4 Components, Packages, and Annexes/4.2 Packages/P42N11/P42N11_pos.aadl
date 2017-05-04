@@ -1,0 +1,10 @@
+package P1
+public
+	with P2;
+	x renames package P2;
+end P1;
+
+package P2
+public
+	
+end P2;
